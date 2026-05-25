@@ -1,0 +1,14 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Workflow",
+      "description": "Skills for turning vague goals into structured discovery, planning, execution, and product requirements.",
+      "skills": [
+        "explorar-planejar-executar",
+        "spec-from-scratch"
+      ]
+    }
+  ]
+}
