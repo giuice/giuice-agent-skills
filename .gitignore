@@ -1,0 +1,10 @@
+# Local/editor files
+.claude/
+.vscode/
+
+# Workspaces/evaluation artifacts
+*-workspace/
+evals/
+
+# OS files
+.DS_Store
