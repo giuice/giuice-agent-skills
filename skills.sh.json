@@ -3,10 +3,16 @@
   "notGrouped": "bottom",
   "groupings": [
     {
-      "title": "Workflow",
-      "description": "Skills for turning vague goals into structured discovery, planning, execution, and product requirements.",
+      "title": "Exploration and Planning",
+      "description": "Skills for turning open-ended goals into guided discovery, planning, and execution workflows.",
       "skills": [
-        "explorar-planejar-executar",
+        "explorar-planejar-executar"
+      ]
+    },
+    {
+      "title": "Requirements and Specs",
+      "description": "Skills for creating thorough specs and requirements from early-stage ideas.",
+      "skills": [
         "spec-from-scratch"
       ]
     }
