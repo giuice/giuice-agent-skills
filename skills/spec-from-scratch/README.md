@@ -13,6 +13,8 @@ Good triggers include:
 - "I want to start at step zero"
 - "Create a PRD/SPEC, but ask me questions first"
 
+The interview runs in exhaustive rounds: each round delivers a clickable batch of questions (native question UI when the agent supports it, otherwise a self-contained HTML form you fill, click **Copy answers**, and paste back). Answers are stored, a coverage gate forces follow-up rounds until every domain is clear, then the final SPEC is written.
+
 ## What it does
 
 The skill interviews the user across:
@@ -25,6 +27,9 @@ The skill interviews the user across:
 - Constraints
 - Edge cases and failure modes
 - Acceptance criteria and validation
+- Test strategy (only when the project produces code)
+
+Every question lets you pick an option or write your own answer/note. The acceptance criteria are TDD-ready (mapped to functional requirement IDs), and code projects also get a Test Strategy section.
 
 It does not draft the final SPEC until the readiness gate passes.
 

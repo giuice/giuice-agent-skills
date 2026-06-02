@@ -1,6 +1,8 @@
 ---
 name: explorar-planejar-executar
 description: Fluxo de trabalho com IA em 3 fases — Explorar (brainstorm guiado), Planejar (plano com tarefas atômicas) e Executar (passo a passo). Ative esta skill sempre que o usuário digitar `/explorar`, `/planejar` ou `/executar`, ou quando tiver qualquer objetivo que envolva planejamento, criação ou dúvida aberta. Serve tanto para tarefas de código quanto para tarefas do mundo real (escrever, pesquisar, contatar, montar). Idioma pt-BR.
+metadata:
+  author: "Giuliano Lemes <giuice@gmail.com>"
 ---
 
 # Explorar → Planejar → Executar

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec Interview — Round 1 · Skill de Clarificação de Domínios</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #181b22;
+    --card-2: #1f232c;
+    --border: #2b303b;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-soft: #2a3b57;
+    --ok: #3ddc97;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px 120px; }
+  header h1 { font-size: 1.5rem; margin: 0 0 6px; }
+  header p { color: var(--muted); margin: 0 0 8px; }
+  .hint {
+    background: var(--accent-soft); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; color: var(--text);
+    font-size: .92rem; margin: 18px 0 28px;
+  }
+  fieldset {
+    border: 1px solid var(--border); border-radius: 12px;
+    background: var(--card); margin: 0 0 20px; padding: 18px 20px;
+  }
+  legend {
+    font-weight: 600; padding: 0 8px; font-size: 1.02rem;
+  }
+  .domain { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin: -4px 0 12px; }
+  .opt {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 9px 11px; border: 1px solid transparent; border-radius: 8px;
+    cursor: pointer; transition: background .12s, border-color .12s;
+  }
+  .opt:hover { background: var(--card-2); }
+  .opt:focus-within { border-color: var(--accent); }
+  .opt input { margin-top: 4px; accent-color: var(--accent); width: 16px; height: 16px; flex: none; }
+  .opt span b { font-weight: 600; }
+  .rec { color: var(--ok); font-size: .78rem; font-weight: 600; margin-left: 6px; }
+  .reason { color: var(--muted); }
+  textarea {
+    width: 100%; margin-top: 12px; background: var(--card-2);
+    color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 11px; font: inherit; resize: vertical; min-height: 44px;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .note-label { font-size: .8rem; color: var(--muted); display: block; margin-top: 12px; }
+  .bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(15,17,21,.92); backdrop-filter: blur(6px);
+    border-top: 1px solid var(--border); padding: 14px 20px;
+    display: flex; gap: 12px; justify-content: center; align-items: center;
+  }
+  button {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 9px;
+    padding: 11px 20px; border: 1px solid var(--border);
+  }
+  .primary { background: var(--accent); color: #0b1020; border-color: var(--accent); }
+  .primary:hover { filter: brightness(1.08); }
+  .ghost { background: transparent; color: var(--text); }
+  .ghost:hover { background: var(--card-2); }
+  #status { color: var(--ok); font-size: .9rem; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Spec Interview — Round 1</h1>
+    <p>Skill nova: <strong>Clarificação de Domínios</strong> (domain clarification)</p>
+  </header>
+
+  <div class="hint">
+    Marque a opção que melhor representa o que você quer. <strong>Toda pergunta tem um campo livre</strong> —
+    use-o pra escrever sua própria resposta, ajustar a opção marcada ou explicar. Ao terminar, clique em
+    <strong>Copiar respostas</strong> e cole o bloco de volta no chat.
+  </div>
+
+  <form id="form"></form>
+
+  <div class="bar">
+    <button type="button" class="primary" onclick="copyAnswers()">Copiar respostas</button>
+    <button type="button" class="ghost" onclick="downloadAnswers()">Baixar answers.json</button>
+    <span id="status" role="status" aria-live="polite"></span>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { id: "q1", domain: "Problema e objetivo", multi: false,
+    title: "Qual é o trabalho principal da skill?",
+    options: [
+      ["A", "Detectar quais domínios de conhecimento um pedido vago envolve e fazer perguntas direcionadas por domínio", true, "foco em descobrir e clarificar áreas"],
+      ["B", "Desambiguar termos/jargões que têm múltiplos sentidos numa área", false, "foco em vocabulário"],
+      ["C", "Mapear o pedido sobre uma taxonomia/ontologia de domínios pré-definida", false, "foco em classificação"],
+    ] },
+  { id: "q2", domain: "Escopo · relação com outras skills", multi: false,
+    title: "Como ela se encaixa com as skills existentes?",
+    options: [
+      ["A", "Pré-passo que alimenta a spec-from-scratch", true, "roda antes da entrevista de spec"],
+      ["B", "Autônoma — saída usável em qualquer ferramenta", false, "independente"],
+      ["C", "Sub-rotina chamável por outras skills", false, "componente reutilizável"],
+    ] },
+  { id: "q3", domain: "Usuários", multi: false,
+    title: "Quem é o usuário primário?",
+    options: [
+      ["A", "Qualquer pessoa escopando uma ideia, incluindo não-técnicos", true, "igual à spec-from-scratch"],
+      ["B", "Só devs/arquitetos", false, "público técnico"],
+      ["C", "Especialistas de domínio validando cobertura", false, "revisão por expert"],
+    ] },
+  { id: "q4", domain: "Entregável", multi: false,
+    title: "Qual o artefato de saída?",
+    options: [
+      ["A", "Um 'Mapa de Domínios': lista de domínios, ambiguidades e definições resolvidas", true, "documento estruturado"],
+      ["B", "Só um resumo no chat, sem arquivo", false, "leve"],
+      ["C", "Um glossário dos termos clarificados", false, "vocabulário consolidado"],
+    ] },
+  { id: "q5", domain: "Requisitos · identificação de domínios", multi: false,
+    title: "Como os domínios são identificados?",
+    options: [
+      ["A", "A IA infere do pedido e pede ao usuário confirmar/corrigir", true, "infere + valida"],
+      ["B", "O usuário escolhe de um catálogo fixo de domínios", false, "lista pré-pronta"],
+      ["C", "Híbrido: infere, depois o usuário adiciona", false, "combina os dois"],
+    ] },
+  { id: "q6", domain: "Requisitos · entrega das perguntas", multi: false,
+    title: "Como as perguntas de clarificação são entregues?",
+    options: [
+      ["A", "UI nativa quando houver, HTML em rodadas como fallback", true, "igual às skills irmãs"],
+      ["B", "Perguntas em texto no chat", false, "simples"],
+      ["C", "Sempre HTML", false, "uniforme entre agentes"],
+    ] },
+  { id: "q7", domain: "Regras de negócio · fronteira", multi: false,
+    title: "O que a skill NÃO deve fazer?",
+    options: [
+      ["A", "Não escrever a SPEC nem o plano — para na clareza de domínios", true, "fronteira clara"],
+      ["B", "Pode também rascunhar requisitos", false, "escopo maior"],
+      ["C", "Pode também propor arquitetura/solução", false, "vai além"],
+    ] },
+  { id: "q8", domain: "Casos extremos / falhas", multi: true,
+    title: "Quais situações difíceis a skill precisa tratar bem? (marque todas)",
+    options: [
+      ["A", "Pedido tão vago que nenhum domínio é claro", true, "entrada mínima"],
+      ["B", "Muitos domínios ao mesmo tempo (sobrecarga)", false, "priorizar/agrupar"],
+      ["C", "Domínios conflitantes ou termos com sentidos opostos", false, "conflito semântico"],
+      ["D", "Usuário não sabe responder uma clarificação", false, "marcar como aberto/deferido"],
+    ] },
+  { id: "q9", domain: "Critério de aceite", multi: false,
+    title: "Quando a clarificação de domínios está 'completa'?",
+    options: [
+      ["A", "Cada domínio identificado sem ambiguidade bloqueante + usuário confirma o mapa", true, "gate por cobertura"],
+      ["B", "Número fixo de rodadas", false, "limite rígido"],
+      ["C", "Quando o usuário disser 'chega'", false, "controle do usuário"],
+    ] },
+  { id: "q10", domain: "Restrições · idioma e portabilidade", multi: false,
+    title: "Idioma e portabilidade da skill?",
+    options: [
+      ["A", "pt-BR e portátil entre Claude Code / Copilot / Codex", true, "como explorar-planejar-executar"],
+      ["B", "Inglês e portátil", false, "como spec-from-scratch"],
+      ["C", "Bilíngue / acompanha o idioma do usuário", false, "flexível"],
+    ] },
+  { id: "q11", domain: "Estratégia de testes (artefato = skill)", multi: false,
+    title: "A skill deve ter testes/evals próprios? (uma skill é markdown, mas pode ter eval)",
+    options: [
+      ["A", "Sim — cenários de eval (entradas de exemplo → mapa de domínios esperado)", true, "valida comportamento da skill"],
+      ["B", "Não — sem testes formais nesta fase", false, "só uso manual"],
+      ["C", "Só um checklist de auto-revisão dentro da skill", false, "leve"],
+    ] },
+];
+
+const form = document.getElementById("form");
+QUESTIONS.forEach((q, i) => {
+  const fs = document.createElement("fieldset");
+  const type = q.multi ? "checkbox" : "radio";
+  let html = `<legend>${i + 1}. ${q.title}</legend>`;
+  html += `<div class="domain">${q.domain}${q.multi ? " · múltipla escolha" : ""}</div>`;
+  q.options.forEach(([key, label, rec, reason]) => {
+    html += `<label class="opt">
+      <input type="${type}" name="${q.id}" value="${key}">
+      <span><b>${key}.</b> ${label}${rec ? '<span class="rec">(Recomendada)</span>' : ''}
+      ${reason ? ` — <span class="reason">${reason}</span>` : ''}</span>
+    </label>`;
+  });
+  html += `<label class="note-label" for="${q.id}-note">Outra / nota (sua resposta livre):</label>
+    <textarea id="${q.id}-note" placeholder="Escreva aqui se nenhuma opção encaixa, ou para complementar..."></textarea>`;
+  fs.innerHTML = html;
+  form.appendChild(fs);
+});
+
+function collect() {
+  return {
+    round: 1,
+    topic: "skill-clarificacao-de-dominios",
+    answers: QUESTIONS.map(q => {
+      const checked = [...document.querySelectorAll(`input[name="${q.id}"]:checked`)].map(el => el.value);
+      const note = document.getElementById(`${q.id}-note`).value.trim();
+      return { id: q.id, selected: checked, note };
+    })
+  };
+}
+
+function copyAnswers() {
+  const data = JSON.stringify(collect(), null, 2);
+  navigator.clipboard.writeText(data).then(
+    () => { setStatus("✓ Copiado! Cole o bloco no chat."); },
+    () => { fallbackCopy(data); }
+  );
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); setStatus("✓ Copiado! Cole o bloco no chat."); }
+  catch (e) { setStatus("Não consegui copiar — use 'Baixar answers.json'."); }
+  document.body.removeChild(ta);
+}
+
+function downloadAnswers() {
+  const blob = new Blob([JSON.stringify(collect(), null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "answers-round-1.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  setStatus("✓ Baixado answers-round-1.json");
+}
+
+function setStatus(msg) { document.getElementById("status").textContent = msg; }
+</script>
+</body>
+</html>
