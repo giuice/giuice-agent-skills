@@ -2,16 +2,14 @@
   "version": 1,
   "skills": {
     "explorar-planejar-executar": {
-      "source": "giuice/giuice-agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/explorar-planejar-executar/SKILL.md",
-      "computedHash": "338138f4168889fcc03072d8a8a5ec18f489cec124a87ddfd79e49d5757cc4a4"
+      "source": "/home/giuice/desenv/giuice-agent-skills",
+      "sourceType": "local",
+      "computedHash": "ca5c6c48dfec8436dcc5df18fceefa8a14aa0828ebe97a1270f22c32c26eaa77"
     },
     "spec-from-scratch": {
-      "source": "giuice/giuice-agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/spec-from-scratch/SKILL.md",
-      "computedHash": "56458061eb9f2c439a5bd5c22a17ea309691d4e879f9e53731c20e6f50c56987"
+      "source": "/home/giuice/desenv/giuice-agent-skills",
+      "sourceType": "local",
+      "computedHash": "9533d177ea8986ffc51a77478eaf09e7751a7f1b575838605061ec12165e24c0"
     }
   }
 }
