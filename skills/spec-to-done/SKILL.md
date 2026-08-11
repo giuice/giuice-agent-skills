@@ -15,7 +15,7 @@ This skill decides and hands off. It holds **no** planning, execution, or report
 
 Derive a slug from the goal — short kebab-case — and look at `spec-interview/<slug>/`. If the user is resuming and the slug is unknown, list the folders and ask which one.
 
-**Match on the goal, not on the slug.** If a folder already exists, compare its stored goal to what the user is asking for now — the `Goal:` line in `PLAN.md`; failing that, the Summary and Goals of `SPEC.md`; failing that, the scope restatement in `state.md`. If none of these exists yet, ask the user whether the folder is the same work before touching it. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
+**Match on the goal, not on the slug.** If a folder already exists, compare its stored goal to what the user is asking for now — the `Goal:` line in `PLAN.md` or `SPEC.md` (older SPECs may only have a Summary — use it); failing that, the scope restatement that opens `state.md`. If none of these exists yet, ask the user whether the folder is the same work before touching it. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
 
 Locating comes before deciding, because the gate below must never fire on work that already exists.
 

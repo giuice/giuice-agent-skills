@@ -136,7 +136,7 @@ Cover these domains before drafting:
 
 ### 4. Track knowns and unknowns
 
-After each round, store the answers (in context, and optionally persist them to `spec-interview/<slug>/state.md` so progress survives a dropped chat). Then summarize progress in a compact state table:
+After each round, persist the answers to `spec-interview/<slug>/state.md` so progress survives a dropped chat. Its first line is the scope restatement from step 1, so a later session can tell from the file alone what work this folder holds. Then summarize progress in a compact state table:
 
 ```markdown
 ## Current understanding
@@ -175,6 +175,7 @@ Before writing the final SPEC, explicitly run this gate:
 - Constraints are explicit: Pass / Missing
 - Edge cases and failure modes are covered: Pass / Missing
 - Acceptance criteria are observable: Pass / Missing
+- Every Must-priority functional requirement has at least one acceptance criterion: Pass / Missing
 - Test strategy is defined (code projects only): Pass / Missing / N/A
 - Open questions are non-blocking or intentionally deferred: Pass / Missing
 
@@ -195,6 +196,8 @@ When the readiness gate passes, save the SPEC to `spec-interview/<slug>/SPEC.md`
 
 ```markdown
 # SPEC: [Name]
+
+Goal: [the desired outcome, in one sentence]
 
 ## 1. Summary
 [Concise description of what is being built and why.]
