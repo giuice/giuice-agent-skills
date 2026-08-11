@@ -2,7 +2,7 @@
 
 Reusable Open Agent Skills for AI coding agents and agentic workflows.
 
-The main thing here is a **long-horizon workflow**: five skills that take a piece of work from an unclear idea to a verified, reported outcome without losing the thread halfway through.
+The main thing here is a **long-horizon workflow**: five skills that take a piece of work from an unclear idea to an evidence-grounded, reported outcome without losing the thread halfway through. Sometimes that outcome is "done and verified"; sometimes it is "blocked here, and this is why" — the workflow is built so both arrive honestly.
 
 ```
 SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT
@@ -47,15 +47,21 @@ Where did we stop on the auto-triage work?
 | 4. Replan | `plan-from-spec` again | After every task: is the rest of the plan still true? Usually yes, and nothing changes |
 | 5. Report | `completion-report` | What became true, what was verified, what remains — and nothing else |
 
-Everything for one piece of work lands in one folder:
+Each piece of work gets **its own folder**, named after a slug derived from your goal. Features never share a folder and never collide:
 
 ```
-spec-interview/auto-triage/
-  SPEC.md      what counts as success        (optional — a stated goal also works)
-  PLAN.md      how to get there              (rewritten as reality intervenes)
-  LEDGER.md    what actually became true     (the resume point)
-  REPORT.md    what you are told at the end
+spec-interview/
+  auto-triage/          ← derived from "auto-triage the support inbox"
+    SPEC.md      what counts as success        (optional — a stated goal also works)
+    PLAN.md      how to get there              (rewritten as reality intervenes)
+    LEDGER.md    what actually became true     (the resume point)
+    REPORT.md    what you are told at the end
+  billing-export/       ← a different feature, its own independent run
+    SPEC.md
+    PLAN.md
 ```
+
+`spec-interview/` is just the parent directory the workflow uses. `auto-triage` is an example slug, not a fixed name — start a new feature and you get a new folder beside it.
 
 Because the state lives in files rather than in the conversation, you can close the session, come back tomorrow, and continue.
 
@@ -101,7 +107,7 @@ Produces the smallest user-facing report that preserves every material fact abou
 
 ### explorar-planejar-executar
 
-A separate pt-BR workflow, not part of the loop above. Turns vague goals into concrete execution through `/explorar`, `/planejar`, and `/executar`. Lighter weight, conversational, no artifacts to maintain.
+A separate pt-BR workflow, not part of the loop above. Turns vague goals into concrete execution through `/explorar`, `/planejar`, and `/executar`. Lighter weight and more conversational — it keeps its own planning file rather than the four-artifact folder, and has no spec contract, ledger, or verification step.
 
 ---
 

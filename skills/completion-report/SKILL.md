@@ -47,7 +47,7 @@ Do this before writing a word.
 | `FAILED` | The required state was not reached and no valid continuation is available |
 | `NO_OP` | The requested state was already true; no change was needed |
 
-`NO_OP` applies when the plan had zero tasks, or when every ledger entry is `no_op`. Report it plainly — do not dress an already-satisfied goal up as work.
+`NO_OP` applies when every ledger entry is `no_op`, or when `PLAN.md` carries `Status: no-op` and no tasks — in which case its `Already true because` and `Evidence` lines are your whole input. Report it plainly; do not dress an already-satisfied goal up as work.
 
 Never upgrade `PARTIAL`, `BLOCKED`, `FAILED`, or unverified work to `COMPLETED` to produce a cleaner answer.
 
@@ -66,6 +66,8 @@ AC-005  unverifiable  unverified  requires production access
 ```
 
 `COMPLETED` requires every criterion in the `satisfied` column. Anything else downgrades the status.
+
+**When several entries cover one criterion** — a task that ended `partial` and the later task that finished its remainder — judge the criterion on the combined record, not the last entry alone. A later `verified` entry supersedes an earlier `unverified` one for the same criterion. An `Unresolved` item that no later entry closed keeps the criterion unsatisfied, however many entries came after it. On a run with no SPEC, join on the `Done when` text the ledger copied instead of on `Covers`.
 
 `attested` — a person confirmed it — is satisfied. It is weaker than a machine check, so the report names it as confirmed rather than measured, but it does not block completion. Otherwise no work outside an automatable domain could ever complete.
 
@@ -232,4 +234,4 @@ Skip the file when there is no working directory — for a one-off report, the c
 
 ---
 
-Design rationale, including the semantic-ledger model and the validation criteria this protocol is derived from: [docs/completion-reporter-design.md](../../docs/completion-reporter-design.md).
+Design rationale — **non-normative**, and older than this skill: [docs/completion-reporter-design.md](../../docs/completion-reporter-design.md). It explains why the protocol is shaped this way, at much greater length, and it predates the `attested` verification label. Where the two disagree, this file wins.

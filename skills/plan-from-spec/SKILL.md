@@ -60,7 +60,20 @@ If the observation contradicts the contract, stop and say so. Do not plan around
 
 ### Already-satisfied goals
 
-If the observation shows the goal is already true, write a plan with **zero tasks**, set `Status: no-op` in the header, and record the observation that establishes it. Hand straight to `completion-report`. Do not manufacture tasks to make the plan look substantial.
+If the observation shows the goal is already true, write a plan with **zero tasks** and hand straight to `completion-report`. Do not manufacture tasks to make the plan look substantial. The whole file is then:
+
+```markdown
+# PLAN: <slug>
+
+Spec: ./SPEC.md
+Goal: <one sentence>
+Plan version: 1
+Status: no-op
+Already true because: <the observation that establishes it>
+Evidence: <how you observed it>
+```
+
+`Status: no-op` appears only in this case. A plan with tasks omits the field.
 
 ## Step 2 — Choose task granularity
 
@@ -210,7 +223,7 @@ Start the reasoning of the first future task with an explicit reflection:
 ### Rules
 
 - **Plan only future work.** Completed tasks leave the plan; the ledger holds them. Do not renumber survivors.
-- **A partially completed task does not survive.** Its remainder is different work and takes a **new** ID. Reusing the ID would make the executor re-run side effects that already happened. Say in the new task's reasoning which prior task it continues.
+- **No attempted task survives.** Any task with a `partial`, `blocked`, or `failed` ledger entry is finished as an instruction: whatever remains of it becomes a **new** task with a **new** ID. Reusing the ID would make the executor re-run side effects that already happened — and because the executor never redispatches a task that has a ledger entry, a reused ID would simply never run again. Say in the new task's reasoning which prior task it continues.
 - **Carry discovered facts forward into the plan text.** The plan is the working memory of the run. If execution learned that the top contributor is Alice, later tasks say "Alice", not "the top contributor". This is why the loop needs no separate memory mechanism.
 - Increment `Plan version` and fill `Replanned because` with the concrete trigger.
 - If nothing material changed, say so and leave the plan untouched.
@@ -226,6 +239,8 @@ If reaching the goal now requires relaxing, dropping, or reinterpreting an accep
 - the options — change the contract, change the approach, or accept partial completion.
 
 Amending the contract is the user's decision, not the planner's. A plan that silently redefines success is the failure mode this whole workflow exists to prevent.
+
+**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
 
 ---
 
@@ -260,7 +275,7 @@ Coverage is evaluated against **the ledger plus the remaining plan**, never the 
 
 **Planning from the goal alone.** Skipping observation produces a plan that is coherent and wrong. Most replans are caused by a planner that never looked.
 
-**Renumbering on replan.** Breaks every ledger reference and destroys the audit trail across versions.
+**Renumbering on replan.** Every ledger entry points at a task ID. Renumber and those references now point at different work.
 
 **Silent scope drift.** Quietly dropping a hard requirement during replan because it turned out to be difficult. Escalate instead.
 

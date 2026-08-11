@@ -31,7 +31,7 @@ Pick per task, in this order:
 
 **Inline.** When the host provides no subagents, when the user asks for it, or when the whole plan is two trivial tasks. Everything else in this skill is unchanged — including verifying the postcondition as a separate act from doing the work.
 
-**Human handoff.** When the task must be performed by a person or outside your reach — a physical action, an approval, an access grant. Present the task brief to the user, wait, and record what they report as `attested` evidence. Never mark such a task done on the assumption it happened.
+**Human handoff.** When the task must be performed by a person or outside your reach — a physical action, an approval, an access grant. Present the task, its `Done when`, and what evidence you need in plain language; never hand a person the structured return contract below. Ask only: did it happen, what is now true, and anything unexpected. **You** turn that answer into the ledger entry, recording it as `attested`. Never mark such a task done on the assumption it happened.
 
 ---
 
@@ -44,21 +44,23 @@ read contract + PLAN + LEDGER
 select next task ──── none left ────► invoke completion-report
    │
    ▼
-does its postcondition already hold?  ── yes ──► record no_op, next task
-   │ no
-   ▼
-dispatch (delegated / inline / human)
-   │
-   ▼
-verify postcondition against observable state   ◄── you do this, not the performer
-   │
-   ▼
-append ledger entry
+does its postcondition already hold? ── yes ──┐
+   │ no                                       │
+   ▼                                          │
+dispatch (delegated / inline / human)         │
+   │                                          │
+   ▼                                          │
+verify against observable state               │   ◄── you do this, not the performer
+   │                                          │
+   ▼                                          ▼
+append ledger entry ◄─────────────────────────┘
    │
    ▼
 replan gate ──── plan still true ────► next task
    │
    └── plan invalid ──► invoke plan-from-spec in replan mode
+
+Every path reaches the ledger and then the gate. No status skips either.
 ```
 
 ### 1. Select the next task
@@ -73,7 +75,14 @@ If a dependency is `blocked` or `failed`, do not proceed to its dependents. Go t
 
 Before dispatching, check whether `Done when` already holds.
 
-This costs one cheap check and closes the gap where a previous run was interrupted after its side effects but before the ledger was written. It also catches work someone else already did. If the condition holds, record a `no_op` entry with the evidence and move on.
+This costs one cheap check and closes the gap where a previous run was interrupted after its side effects but before the ledger was written. It also catches work someone else already did.
+
+Which status you record depends on **why** the condition holds:
+
+- Nothing ever attempted this task — it was already true → `no_op`.
+- A previous run may have acted and died before recording → `done`, with the observed state delta and a note that it was reconstructed after an interruption. Recording that as `no_op` would erase a real change from the record.
+
+When you cannot tell the two apart, assume the second. Losing a state delta is worse than over-reporting one.
 
 ### 3. Dispatch
 
@@ -143,6 +152,8 @@ Label the verification, because the reporter depends on the distinction:
 
 `attested` is a satisfied criterion. `unverified` is not.
 
+**Never record `done` with `unverified`.** If the postcondition cannot be observed at all, the status is `partial` and the unobservable condition goes in `Unresolved`. Otherwise the executor would call a task finished that the reporter must then downgrade, and the run would end claiming a completion the evidence does not support.
+
 ### 5. Write the ledger entry
 
 **You are the only writer.** Performers return structured blocks; you validate and append. One writer means one format, no concurrent writes, and a natural point to decide on replanning.
@@ -160,6 +171,7 @@ State delta:
 Evidence:
 - integration test PaymentTimeoutTests → passed
 Verification: verified
+Gate: plan holds
 
 ## T2 — Product endpoint cache  [partial]
 Plan version: 1
@@ -178,9 +190,13 @@ Risk:
 - The reporting job may read stale data until invalidation is added.
 Deviation: TTL set to 60s rather than the planned 300s, because the reporting job
 tolerates at most one minute of staleness.
+Gate: replan required
 ```
 
 Ledger rules:
+
+- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write it when the gate runs, immediately after the entry. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
+- **On a run with no `Covers`** — no SPEC, so the contract is the union of the plan's `Done when` — copy the task's `Done when` into the entry instead. Completed tasks leave the plan, so this is the only place the satisfied part of the contract survives.
 
 - **Write it after every task, never reconstruct it at the end.** A ledger rebuilt from memory at the end of a long run is exactly the semantic loss this workflow exists to prevent.
 - **Copy `Covers` verbatim from the plan.** It is the only path from task evidence back to acceptance criteria once the task leaves the plan. Omit when the plan has no `Covers`.
@@ -193,7 +209,7 @@ Ledger rules:
 
 ### 6. Status transitions
 
-Every status has exactly one continuation. No status leaves the loop undefined.
+**This table is normative.** Where the diagram, the prose, or the anti-patterns seem to say otherwise, the table wins. Every status has exactly one continuation, and no status leaves the loop undefined.
 
 | Status | Ledger | Then |
 |---|---|---|

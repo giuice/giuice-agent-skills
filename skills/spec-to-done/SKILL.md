@@ -11,9 +11,19 @@ Route work through `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`.
 
 This skill decides and hands off. It holds **no** planning, execution, or reporting rules — those live in the skills it routes to, and duplicating them here would create a second source of truth that drifts. If you catch yourself explaining how to write a task or a report, stop and hand off instead.
 
-## Step 0 — Does this work need the loop at all?
+## Step 1 — Locate the work first
 
-Most work does not. The loop costs a requirements interview, a plan file, a ledger entry per task, a verification per task, and a replan checkpoint after each one. That overhead buys traceability and resilience over a long horizon. On a small change it buys nothing and just slows the work down.
+Derive a slug from the goal — short kebab-case — and look at `spec-interview/<slug>/`. If the user is resuming and the slug is unknown, list the folders and ask which one.
+
+**Match on the goal, not on the slug.** If a folder already exists, compare its `Goal:` line to what the user is asking for now. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
+
+Locating comes before deciding, because the gate below must never fire on work that already exists.
+
+## Step 2 — Does *new* work need the loop?
+
+Only for work with no folder yet. **An existing run is never subject to this gate** — it already has a contract and a ledger, and finishing it outside them would strand the record it was keeping.
+
+Most new work does not need the loop. It costs a requirements interview, a plan file, a verification and a ledger entry per task, and a replan checkpoint after each one. That overhead buys traceability and resilience over a long horizon; on a small change it buys nothing.
 
 Run the loop when **at least two** of these hold:
 
@@ -26,26 +36,47 @@ Run the loop when **at least two** of these hold:
 
 Otherwise just do the work. Say in one line that you are skipping the loop and why — do not run a ceremony to look thorough.
 
-Between those extremes, offer the middle: run `plan-from-spec` and `execute-plan` on a stated goal, skipping the SPEC interview.
+Between the extremes, offer the middle: `plan-from-spec` and `execute-plan` on a stated goal, skipping the SPEC interview.
 
-## Step 1 — Locate the work
+## Step 3 — Route on what exists
 
-Derive the slug from the goal (short kebab-case) and look at `spec-interview/<slug>/`. If the user is resuming and the slug is unknown, list the folders and ask which one.
-
-## Step 2 — Route on what exists
+**First matching row wins.**
 
 | State of `spec-interview/<slug>/` | Hand off to |
 |---|---|
-| Nothing yet, and the work is product-shaped with unclear requirements | `spec-from-scratch` |
-| Nothing yet, and the goal is already clear, or the domain is not product work | `plan-from-spec` — state the goal directly, no SPEC |
+| `REPORT.md` exists and no ledger entry is newer than it | Nothing — state the outcome and ask what is next |
+| The last ledger entry says `Gate: replan required` | `plan-from-spec`, replan mode |
+| `PLAN.md` has `Status: no-op` and no tasks | `completion-report` |
+| Every task is `done` or `no_op` | `completion-report` |
+| Some task has no ledger entry | `execute-plan` |
+| Every task has an entry and at least one is not `done`/`no_op` | See "Interrupted mid-loop" below |
 | `SPEC.md` exists, no `PLAN.md` | `plan-from-spec`, initial mode |
-| `PLAN.md` exists with tasks that have no ledger entry | `execute-plan` |
-| Every task is `done` or `no_op`, or a blocker survived replanning | `completion-report` |
-| `REPORT.md` exists and matches the ledger | Nothing — state the outcome and ask what is next |
+| Interview artifacts exist (`round-*.html`, `state.md`), no `SPEC.md` | `spec-from-scratch`, resuming the interview |
+| Nothing yet, and the goal is already clear | `plan-from-spec` — state the goal directly, no SPEC |
+| Nothing yet, product work with unclear requirements | `spec-from-scratch` |
+| Nothing yet, non-product work with unclear requirements | Clarify here first — see below |
 
-Replanning is not a route. `execute-plan` owns its replan gate and calls `plan-from-spec` itself; do not intercept that loop.
+Replanning is not otherwise a route. `execute-plan` owns its replan gate and calls `plan-from-spec` itself; do not intercept that loop.
 
-## Step 3 — Hand off cleanly
+### Interrupted mid-loop
+
+Every task has an entry, but the run is not finished. Read the **last** entry's `Gate:` line:
+
+| `Gate:` | Meaning | Hand off to |
+|---|---|---|
+| `replan required` | The gate fired and the replan never happened | `plan-from-spec`, replan mode |
+| missing | The run died before reaching its gate | `execute-plan` — it runs the gate it never reached |
+| `replan done (plan version N)`, N is the current plan version, still nothing dispatchable | Replanning already tried and could not route around the blocker | `completion-report` |
+
+This is why `execute-plan` closes every entry with `Gate:`. Without it, an interrupted run and a terminally blocked one look identical from the folder.
+
+### Non-product work with unclear requirements
+
+Do not send this to `spec-from-scratch` — its interview and output are shaped for product work, and it would force user journeys and launch criteria onto research, operations, or physical-world goals.
+
+Clarify it here instead, in as few questions as it takes: what does done look like, what must not happen, and what constrains the approach. As soon as you can name at least one checkable outcome condition, hand to `plan-from-spec` with the goal stated directly. If the goal resists that after a couple of rounds, say so — a goal with no checkable outcome cannot be planned, only discussed.
+
+## Step 4 — Hand off cleanly
 
 One stage at a time. Name the skill you are invoking and why, then let it own its own contract, gates, and output. Do not pre-chew its work, and do not second-guess its gates from here — a readiness gate that fails means another round in that stage, not an override from this one.
 
@@ -59,9 +90,9 @@ When the user asks where things stand, read the folder and state it plainly befo
 Goal:        <from SPEC.md or PLAN.md>
 Plan:        version <N>, <M> tasks
 Progress:    <k> done, <k> unresolved
-Last entry:  <task id and status>
+Last entry:  <task id, status, and its Gate line>
 Blockers:    <from the ledger, or none>
-Next:        <the stage from the routing table>
+Next:        <the row that matched in step 3>
 ```
 
 The ledger is the source of truth for progress, not memory of the conversation.
