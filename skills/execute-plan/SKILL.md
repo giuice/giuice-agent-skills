@@ -134,6 +134,8 @@ Rules:
 
 Give the performer the smallest slice of the contract that matters. Dumping the whole SPEC into every brief defeats the purpose of dispatching.
 
+The brief deliberately omits the task's `Reasoning` — that is the planner's justification, not an instruction. If the reasoning contains a fact the performer needs, that fact belongs in `Established facts`.
+
 ### 4. Verify — do not take the performer's word
 
 The performer is not the judge of its own success. Before writing the ledger, check the postcondition yourself against observable state:
@@ -195,7 +197,7 @@ Gate: replan required
 
 Ledger rules:
 
-- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write it when the gate runs, immediately after the entry. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
+- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write `replan required` the moment the gate decides a replan is needed — before invoking the replanner — then overwrite that same line with `replan done (plan version N)` once the new plan is written. The `Gate:` line is the one field updated in place; the append-only rule below does not apply to it. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
 - **On a run with no `Covers`** — no SPEC, so the contract is the union of the plan's `Done when` — copy the task's `Done when` into the entry instead. Completed tasks leave the plan, so this is the only place the satisfied part of the contract survives.
 
 - **Write it after every task, never reconstruct it at the end.** A ledger rebuilt from memory at the end of a long run is exactly the semantic loss this workflow exists to prevent.
@@ -205,7 +207,7 @@ Ledger rules:
 - **Record deviations honestly.** A silent deviation becomes a hidden contract change.
 - **Destructive or irreversible actions and changes to user data are always state deltas.** Never leave one implicit.
 - A recovered transient error with no residual consequence may be omitted. An error that changed the final state must be recorded.
-- Append only. Never rewrite a past entry; if a later task changes an earlier outcome, write a new entry saying so.
+- Append only. Never rewrite a past entry — its `Gate:` line excepted, per the rule above. If a later task changes an earlier outcome, write a new entry saying so.
 
 ### 6. Status transitions
 
@@ -272,7 +274,7 @@ Report the state through `completion-report` rather than improvising a new objec
 
 ## Resuming
 
-`LEDGER.md` is the resume point. On restart, read the contract, `PLAN.md`, and `LEDGER.md`, then continue from the first task with no ledger entry — running the step 2 pre-check before dispatching it, since a prior run may have acted without recording.
+`LEDGER.md` is the resume point. On restart, read the contract, `PLAN.md`, and `LEDGER.md`. **First look at the last entry's `Gate:` line**: if it is missing, the run died before its checkpoint — run the replan gate for that entry now; if it says `replan required`, invoke the replanner now. Only then continue from the first task with no ledger entry — running the step 2 pre-check before dispatching it, since a prior run may have acted without recording.
 
 Do not re-run completed tasks. Re-verify a completed task only when a later discovery may have invalidated its postcondition.
 

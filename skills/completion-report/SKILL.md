@@ -25,7 +25,7 @@ It also does not invent evidence. If something was not verified, the report says
 
 From `spec-interview/<slug>/`:
 
-- **the contract** — `SPEC.md` when it exists; otherwise `PLAN.md`, whose `Goal` and the union of its `Done when` conditions are the contract;
+- **the contract** — `SPEC.md` when it exists; otherwise the `Goal` in `PLAN.md` plus the union of the `Done when` conditions in the current plan **and** those the ledger records as satisfied — completed tasks leave the plan on replan, so part of the contract survives only in their ledger entries;
 - **`LEDGER.md`** — the record of what became true, with each entry's `Covers`, evidence, and verification label;
 - **`PLAN.md`** — for the goal statement and any task that never produced a ledger entry.
 

@@ -224,6 +224,7 @@ Start the reasoning of the first future task with an explicit reflection:
 
 - **Plan only future work.** Completed tasks leave the plan; the ledger holds them. Do not renumber survivors.
 - **No attempted task survives.** Any task with a `partial`, `blocked`, or `failed` ledger entry is finished as an instruction: whatever remains of it becomes a **new** task with a **new** ID. Reusing the ID would make the executor re-run side effects that already happened — and because the executor never redispatches a task that has a ledger entry, a reused ID would simply never run again. Say in the new task's reasoning which prior task it continues.
+- **Repoint dependencies.** Every surviving task whose `Depends on` names a finished-as-instruction task now points at its replacement — or drops the dependency if the part already done was all it needed. A `Depends on` left pointing at a `partial`, `blocked`, or `failed` entry can never be satisfied: the executor requires dependencies to be `done` or `no_op`, and that task will never be either.
 - **Carry discovered facts forward into the plan text.** The plan is the working memory of the run. If execution learned that the top contributor is Alice, later tasks say "Alice", not "the top contributor". This is why the loop needs no separate memory mechanism.
 - Increment `Plan version` and fill `Replanned because` with the concrete trigger.
 - If nothing material changed, say so and leave the plan untouched.
@@ -240,7 +241,7 @@ If reaching the goal now requires relaxing, dropping, or reinterpreting an accep
 
 Amending the contract is the user's decision, not the planner's. A plan that silently redefines success is the failure mode this whole workflow exists to prevent.
 
-**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
+**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely — the restating task must then name the condition it restates, or repeat the prior `Done when` text alongside the new one, so the reporter can join the old entry to the new. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
 
 ---
 
@@ -255,6 +256,7 @@ Run before writing `PLAN.md`, in either mode:
 - Every task has a Verify by: Pass / Missing
 - No task describes HOW instead of WHAT: Pass / Missing
 - Dependencies ordered correctly, no cycles: Pass / Missing
+- No `Depends on` names a task with a `partial`, `blocked`, or `failed` ledger entry (replan only): Pass / Missing / N/A
 - Task IDs stable against the previous version (replan only): Pass / Missing / N/A
 - Success criteria unchanged from the contract (replan only): Pass / Missing / N/A
 

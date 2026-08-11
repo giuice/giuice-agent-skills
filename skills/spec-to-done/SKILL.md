@@ -15,7 +15,7 @@ This skill decides and hands off. It holds **no** planning, execution, or report
 
 Derive a slug from the goal — short kebab-case — and look at `spec-interview/<slug>/`. If the user is resuming and the slug is unknown, list the folders and ask which one.
 
-**Match on the goal, not on the slug.** If a folder already exists, compare its `Goal:` line to what the user is asking for now. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
+**Match on the goal, not on the slug.** If a folder already exists, compare its stored goal to what the user is asking for now — the `Goal:` line in `PLAN.md`; failing that, the Summary and Goals of `SPEC.md`; failing that, the scope restatement in `state.md`. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
 
 Locating comes before deciding, because the gate below must never fire on work that already exists.
 
@@ -44,7 +44,7 @@ Between the extremes, offer the middle: `plan-from-spec` and `execute-plan` on a
 
 | State of `spec-interview/<slug>/` | Hand off to |
 |---|---|
-| `REPORT.md` exists and no ledger entry is newer than it | Nothing — state the outcome and ask what is next |
+| `REPORT.md` exists and `LEDGER.md` has not changed since it was written — compare file modification times | Nothing — state the outcome and ask what is next |
 | The last ledger entry says `Gate: replan required` | `plan-from-spec`, replan mode |
 | `PLAN.md` has `Status: no-op` and no tasks | `completion-report` |
 | Every task is `done` or `no_op` | `completion-report` |

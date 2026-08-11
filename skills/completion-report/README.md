@@ -32,7 +32,7 @@ Chronicle reporting, semantic amputation ("tests pass" when integration tests ne
 
 ## Artifacts
 
-Reads three things from `spec-interview/<slug>/`: the contract (`SPEC.md`, or `PLAN.md` when the run had no SPEC), `LEDGER.md` for what became true and on what evidence, and `PLAN.md` for the goal and any task that never produced an entry. Renders the report in the conversation and writes `REPORT.md`.
+Reads three things from `spec-interview/<slug>/`: the contract (`SPEC.md`, or — when the run had no SPEC — the goal plus the `Done when` conditions in `PLAN.md` and those the ledger records as satisfied), `LEDGER.md` for what became true and on what evidence, and `PLAN.md` for the goal and any task that never produced an entry. Renders the report in the conversation and writes `REPORT.md`.
 
 ## Related
 
