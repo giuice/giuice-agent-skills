@@ -15,6 +15,15 @@
       "skills": [
         "spec-from-scratch"
       ]
+    },
+    {
+      "title": "Long-Horizon Execution",
+      "description": "The post-specification stages of SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT: planning from a spec or a stated goal, executing with evidence and dynamic replanning, and reporting the outcome without losing material state. Pair with spec-from-scratch for the specification stage.",
+      "skills": [
+        "plan-from-spec",
+        "execute-plan",
+        "completion-report"
+      ]
     }
   ]
 }
