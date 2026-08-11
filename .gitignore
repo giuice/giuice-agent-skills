@@ -2,6 +2,12 @@
 .claude/
 .vscode/
 
+# Local install artifacts from `npx skills add` (this repo produces skills; it
+# does not consume them). skills-lock.json here pins an absolute local path, so
+# it cannot restore on any other machine.
+.agents/
+skills-lock.json
+
 # Workspaces/evaluation artifacts
 *-workspace/
 evals/
