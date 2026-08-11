@@ -34,7 +34,7 @@ The ledger records **state, not activity**: "requests over 30s now fail", not "e
 
 ## Related
 
-Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [plan-from-spec](../plan-from-spec), and [completion-report](../completion-report).
+Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [plan-from-spec](../plan-from-spec), and [completion-report](../completion-report). [spec-to-done](../spec-to-done) is the entry point if you would rather not name the stage yourself.
 
 ## Install
 

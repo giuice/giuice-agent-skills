@@ -27,7 +27,7 @@ A SPEC is optional. With a plain stated goal, the union of every task's `Done wh
 
 ## Related
 
-Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [execute-plan](../execute-plan), and [completion-report](../completion-report).
+Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [execute-plan](../execute-plan), and [completion-report](../completion-report). [spec-to-done](../spec-to-done) is the entry point if you would rather not name the stage yourself.
 
 The plan/execute/replan separation follows Erdogan et al., [PLAN-AND-ACT: Improving Planning of Agents for Long-Horizon Tasks](https://arxiv.org/abs/2503.09572), where dynamic replanning was the single largest ablation gain — evidence that plan quality, not action execution, is the bottleneck on long-horizon tasks.
 

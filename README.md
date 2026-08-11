@@ -2,27 +2,94 @@
 
 Reusable Open Agent Skills for AI coding agents and agentic workflows.
 
+The main thing here is a **long-horizon workflow**: five skills that take a piece of work from an unclear idea to a verified, reported outcome without losing the thread halfway through.
+
+```
+SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT
+```
+
+---
+
+## Quick start
+
+Install the workflow:
+
+```bash
+npx skills add giuice/giuice-agent-skills --skill spec-to-done spec-from-scratch plan-from-spec execute-plan completion-report
+```
+
+Skill names are space-separated, not comma-separated.
+
+Then just say what you want, in your own words:
+
+```
+Take this from idea to done: our support inbox needs auto-triage by topic.
+```
+
+`spec-to-done` picks it up, decides whether the work is big enough to deserve the loop, and routes you through the stages. **You do not need to know the other skill names.** They also work standalone if you want only one of them.
+
+To pick up work later:
+
+```
+Where did we stop on the auto-triage work?
+```
+
+---
+
+## What actually happens
+
+| Stage | Skill | What you see |
+|---|---|---|
+| 0. Route | `spec-to-done` | It tells you whether this work needs the loop, and where you already are in it |
+| 1. Specify | `spec-from-scratch` | Rounds of clickable questions until every requirement domain is clear, then `SPEC.md` |
+| 2. Plan | `plan-from-spec` | It inspects your actual current state, then writes `PLAN.md` — tasks with observable "done when" conditions |
+| 3. Execute | `execute-plan` | One task at a time, each verified against reality, each recorded in `LEDGER.md` |
+| 4. Replan | `plan-from-spec` again | After every task: is the rest of the plan still true? Usually yes, and nothing changes |
+| 5. Report | `completion-report` | What became true, what was verified, what remains — and nothing else |
+
+Everything for one piece of work lands in one folder:
+
+```
+spec-interview/auto-triage/
+  SPEC.md      what counts as success        (optional — a stated goal also works)
+  PLAN.md      how to get there              (rewritten as reality intervenes)
+  LEDGER.md    what actually became true     (the resume point)
+  REPORT.md    what you are told at the end
+```
+
+Because the state lives in files rather than in the conversation, you can close the session, come back tomorrow, and continue.
+
+---
+
+## When not to use it
+
+Most work does not need this. The loop costs an interview, a plan file, a verification and a ledger entry per task. On a small, reversible change that overhead buys nothing, and `spec-to-done` will tell you so instead of running the ceremony.
+
+The middle path is usually the right one: skip the SPEC interview, state the goal directly, and run plan → execute → report.
+
+---
+
+## The design in one paragraph
+
+Each stage has a strict boundary. The SPEC defines success. The plan is mutable strategy. The ledger is the observable record, written as work happens rather than reconstructed from memory afterwards. The report is a projection of contract × final state × evidence — not a summary of what the agent did. The load-bearing invariant is that **a plan may change, but the contract may not change silently because the plan did**: if execution makes an acceptance criterion unreachable, the workflow stops and asks you, rather than quietly satisfying a weaker goal.
+
+The plan/execute/replan separation follows Erdogan et al., [PLAN-AND-ACT](https://arxiv.org/abs/2503.09572), where dynamic replanning was the single largest ablation gain — evidence that plan quality, not action execution, is the bottleneck on long tasks. The specification gate, the incremental ledger, and the reporting stage are additions.
+
+---
+
 ## Skills
 
-### explorar-planejar-executar
+### spec-to-done
 
-A pt-BR workflow that turns vague goals into concrete execution through three explicit phases:
-
-- `/explorar` — guided discovery and context gathering
-- `/planejar` — approach selection and atomic task planning
-- `/executar` — controlled step-by-step execution
-
-Use it when a user has an open-ended objective that needs exploration, planning, or structured execution.
+The entry point. Decides whether work warrants the full loop, detects which stage it is already in by reading the working folder, and routes. Holds no planning or reporting rules of its own.
 
 ### spec-from-scratch
 
-A requirements-discovery workflow for creating a complete product SPEC from an unclear idea.
-
-It runs an exhaustive interview before drafting, covering goals, users, scope, requirements, business rules, constraints, edge cases, and acceptance criteria. Use it when a user wants to create, clarify, scope, or write a SPEC/PRD without hidden assumptions.
+Creates a complete product SPEC from an unclear idea through an exhaustive requirements interview — goals, users, scope, business rules, constraints, edge cases, acceptance criteria — and refuses to draft until a readiness gate passes. Useful on its own, whatever you plan to do with the SPEC afterwards.
 
 ### plan-from-spec
 
-Turns a SPEC or stated goal into a plan of outcome-shaped tasks, each with an observable postcondition, and regenerates that plan when execution proves it wrong. Replanning may change the strategy, never the definition of success.
+Turns a SPEC or a stated goal into a plan of outcome-shaped tasks, each with an observable postcondition, and regenerates that plan when execution proves it wrong. Replanning may change the strategy, never the definition of success.
 
 ### execute-plan
 
@@ -30,42 +97,38 @@ Executes a plan task by task as an orchestrator: dispatches each task to a subag
 
 ### completion-report
 
-Produces the smallest user-facing report that preserves every material fact about the outcome — a projection of specification × final state × evidence, not a summary of the execution trace.
+Produces the smallest user-facing report that preserves every material fact about the outcome. No activity narration, no unsupported success claims, no hidden unverified state.
 
-## The long-horizon workflow
+### explorar-planejar-executar
 
-The last four skills compose into one loop:
+A separate pt-BR workflow, not part of the loop above. Turns vague goals into concrete execution through `/explorar`, `/planejar`, and `/executar`. Lighter weight, conversational, no artifacts to maintain.
 
-```
-SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT
-```
+---
 
-Each stage has a strict boundary: the SPEC defines success, the plan is mutable strategy, the ledger is the observable record, and the report is the user-facing projection of that record. A plan may change; the contract may not change silently because the plan did.
+## Domain neutrality
 
-The plan/execute/replan separation follows Erdogan et al., [PLAN-AND-ACT](https://arxiv.org/abs/2503.09572); the specification gate, the incremental ledger, and the reporting stage are additions.
+`spec-to-done`, `plan-from-spec`, `execute-plan`, and `completion-report` assume no web, no code, and no repository. They work for research, writing, operations, and physical-world tasks, and they accept a plain stated goal when no SPEC exists.
 
-`plan-from-spec`, `execute-plan`, and `completion-report` are domain-neutral — they carry no assumption of web, code, or a repository, and they accept a plain stated goal when no SPEC exists. `spec-from-scratch` is narrower: its interview and output are shaped for product work. For non-product domains, start at `plan-from-spec` with the goal stated directly.
+`spec-from-scratch` is narrower: its interview and output are shaped for product work. For non-product domains, let the router send you straight to `plan-from-spec` with the goal stated directly.
+
+---
 
 ## Install
 
-List available skills:
+List what is available:
 
 ```bash
 npx skills add giuice/giuice-agent-skills --list
 ```
 
-Install all skills:
+Install everything:
 
 ```bash
 npx skills add giuice/giuice-agent-skills
 ```
 
-Install a specific skill:
+Install one skill:
 
 ```bash
-npx skills add giuice/giuice-agent-skills --skill explorar-planejar-executar
-npx skills add giuice/giuice-agent-skills --skill spec-from-scratch
-npx skills add giuice/giuice-agent-skills --skill plan-from-spec
-npx skills add giuice/giuice-agent-skills --skill execute-plan
-npx skills add giuice/giuice-agent-skills --skill completion-report
+npx skills add giuice/giuice-agent-skills --skill spec-to-done
 ```

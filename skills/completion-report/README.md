@@ -36,7 +36,7 @@ Reads `spec-interview/<slug>/SPEC.md` and `LEDGER.md`. Renders the report in the
 
 ## Related
 
-Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [plan-from-spec](../plan-from-spec), and [execute-plan](../execute-plan).
+Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [plan-from-spec](../plan-from-spec), and [execute-plan](../execute-plan). [spec-to-done](../spec-to-done) is the entry point if you would rather not name the stage yourself.
 
 Full design rationale, including the semantic-ledger model and validation criteria: [docs/completion-reporter-design.md](../../docs/completion-reporter-design.md).
 
