@@ -15,7 +15,7 @@ This skill decides and hands off. It holds **no** planning, execution, or report
 
 Derive a slug from the goal — short kebab-case — and look at `spec-interview/<slug>/`. If the user is resuming and the slug is unknown, list the folders and ask which one.
 
-**Match on the goal, not on the slug.** If a folder already exists, compare its stored goal to what the user is asking for now — the `Goal:` line in `PLAN.md`; failing that, the Summary and Goals of `SPEC.md`; failing that, the scope restatement in `state.md`. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
+**Match on the goal, not on the slug.** If a folder already exists, compare its stored goal to what the user is asking for now — the `Goal:` line in `PLAN.md`; failing that, the Summary and Goals of `SPEC.md`; failing that, the scope restatement in `state.md`. If none of these exists yet, ask the user whether the folder is the same work before touching it. Different work can produce the same slug — two "export" features, two "cleanup" tasks. When the stored goal is not this goal, do not resume it: pick a distinguishing slug and start fresh. Silently continuing an unrelated run corrupts both records.
 
 Locating comes before deciding, because the gate below must never fire on work that already exists.
 
@@ -44,8 +44,8 @@ Between the extremes, offer the middle: `plan-from-spec` and `execute-plan` on a
 
 | State of `spec-interview/<slug>/` | Hand off to |
 |---|---|
-| `REPORT.md` exists and `LEDGER.md` has not changed since it was written — compare file modification times | Nothing — state the outcome and ask what is next |
-| The last ledger entry says `Gate: replan required` | `plan-from-spec`, replan mode |
+| `REPORT.md` exists and no other artifact in the folder changed after it — compare file modification times | Nothing — state the outcome and ask what is next |
+| The last ledger entry says `Gate: replan required` | `execute-plan` — resuming, it invokes the replanner and closes the `Gate:` |
 | `PLAN.md` has `Status: no-op` and no tasks | `completion-report` |
 | Every task is `done` or `no_op` | `completion-report` |
 | Some task has no ledger entry | `execute-plan` |
@@ -56,7 +56,7 @@ Between the extremes, offer the middle: `plan-from-spec` and `execute-plan` on a
 | Nothing yet, product work with unclear requirements | `spec-from-scratch` |
 | Nothing yet, non-product work with unclear requirements | Clarify here first — see below |
 
-Replanning is not otherwise a route. `execute-plan` owns its replan gate and calls `plan-from-spec` itself; do not intercept that loop.
+Replanning is never a direct route from here. `execute-plan` owns its replan gate, calls `plan-from-spec` itself, and closes the `Gate:` line afterwards — only it writes the ledger. Do not intercept that loop.
 
 ### Interrupted mid-loop
 
@@ -64,8 +64,9 @@ Every task has an entry, but the run is not finished. Read the **last** entry's 
 
 | `Gate:` | Meaning | Hand off to |
 |---|---|---|
-| `replan required` | The gate fired and the replan never happened | `plan-from-spec`, replan mode |
+| `replan required` | The gate fired and the replan never finished | `execute-plan` — it replans and closes the `Gate:` |
 | missing | The run died before reaching its gate | `execute-plan` — it runs the gate it never reached |
+| `replan exhausted` | Replanning concluded no valid plan exists | `completion-report` |
 | `replan done (plan version N)`, N is the current plan version, still nothing dispatchable | Replanning already tried and could not route around the blocker | `completion-report` |
 
 This is why `execute-plan` closes every entry with `Gate:`. Without it, an interrupted run and a terminally blocked one look identical from the folder.

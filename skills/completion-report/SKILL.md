@@ -67,7 +67,7 @@ AC-005  unverifiable  unverified  requires production access
 
 `COMPLETED` requires every criterion in the `satisfied` column. Anything else downgrades the status.
 
-**When several entries cover one criterion** — a task that ended `partial` and the later task that finished its remainder — judge the criterion on the combined record, not the last entry alone. A later `verified` entry supersedes an earlier `unverified` one for the same criterion. An `Unresolved` item that no later entry closed keeps the criterion unsatisfied, however many entries came after it. On a run with no SPEC, join on the `Done when` text the ledger copied instead of on `Covers`.
+**When several entries cover one criterion** — a task that ended `partial` and the later task that finished its remainder — judge the criterion on the combined record, not the last entry alone. A later `verified` entry supersedes an earlier `unverified` one for the same criterion. An `Unresolved` item that no later entry closed keeps the criterion unsatisfied, however many entries came after it. On a run with no SPEC, join on the `Done when` text the ledger copied instead of on `Covers`; an entry whose `Restates:` text matches an earlier entry's `Done when` continues that same criterion.
 
 `attested` — a person confirmed it — is satisfied. It is weaker than a machine check, so the report names it as confirmed rather than measured, but it does not block completion. Otherwise no work outside an automatable domain could ever complete.
 

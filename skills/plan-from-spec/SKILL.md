@@ -42,9 +42,9 @@ A stated goal is enough. Derive the slug yourself — short kebab-case, from the
 - set `Spec: none — the contract is this plan`;
 - omit `Covers:` from every task.
 
-With no SPEC, **the union of every task's `Done when` is the acceptance contract.** Downstream stages read it from `PLAN.md` instead of `SPEC.md`. That makes the contract mutable by replanning, which is exactly the risk a SPEC removes — so say this out loud to the user once.
+With no SPEC, **the contract is the union of the `Done when` conditions — those the ledger already records as satisfied plus those in the current plan.** Downstream stages read it from `PLAN.md` and `LEDGER.md` instead of `SPEC.md`. That leaves the contract extendable by replanning, which is exactly the risk a SPEC removes — so say this out loud to the user once.
 
-Never invent a SPEC. If the goal is too vague to produce checkable postconditions, stop and run `spec-from-scratch` first.
+Never invent a SPEC. If the goal is too vague to produce checkable postconditions, stop: for product work, run `spec-from-scratch` first; for non-product work, ask the few questions needed to name at least one checkable outcome condition.
 
 ---
 
@@ -181,7 +181,8 @@ Depends on: T1
 Field rules:
 
 - **Task IDs are stable and never reused.** `T3` refers to the same unit of work across every plan version. A replan that keeps a task keeps its ID; a new task takes the next unused number. This is what lets the ledger join to the plan across replans.
-- **Covers** maps to SPEC requirement and acceptance-criterion IDs. Omit entirely when there is no SPEC. When a SPEC exists, every acceptance criterion must be covered — see the quality gate.
+- **Covers** maps to SPEC requirement and acceptance-criterion IDs. Omit entirely when there is no SPEC. When a SPEC exists, every acceptance criterion and every Must-priority requirement must be covered — see the quality gate.
+- **Restates** (no-SPEC replans only) carries the prior `Done when` text verbatim when a task restates a pending condition more precisely. Omit otherwise.
 - **Depends on** lists task IDs that must complete first. Use `—` when none. Order tasks so dependencies precede dependents.
 - **Plan version** is a label for ledger entries, not an archive. Prior plan text lives in version control, not in this folder.
 
@@ -241,7 +242,7 @@ If reaching the goal now requires relaxing, dropping, or reinterpreting an accep
 
 Amending the contract is the user's decision, not the planner's. A plan that silently redefines success is the failure mode this whole workflow exists to prevent.
 
-**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely — the restating task must then name the condition it restates, or repeat the prior `Done when` text alongside the new one, so the reporter can join the old entry to the new. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
+**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely — the restating task then carries `Restates: <the prior Done when text, verbatim>` so the reporter can join the old entry to the new. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
 
 ---
 
@@ -252,6 +253,7 @@ Run before writing `PLAN.md`, in either mode:
 ```markdown
 - Grounded in an actual observation of current state: Pass / Missing
 - Every acceptance criterion covered by a completed ledger entry or a remaining task: Pass / Missing / N/A
+- Every Must-priority requirement covered by a completed ledger entry or a remaining task: Pass / Missing / N/A
 - Every task has an observable Done when: Pass / Missing
 - Every task has a Verify by: Pass / Missing
 - No task describes HOW instead of WHAT: Pass / Missing

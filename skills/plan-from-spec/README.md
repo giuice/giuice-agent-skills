@@ -23,7 +23,7 @@ The hard rule: **replanning changes the strategy, never the definition of succes
 
 Writes `spec-interview/<slug>/PLAN.md`, alongside the `SPEC.md` that `spec-from-scratch` produces.
 
-A SPEC is optional. With a plain stated goal, the union of every task's `Done when` becomes the acceptance contract — which also makes that contract mutable by replanning, the one thing a SPEC prevents. The skill says so out loud rather than hiding it.
+A SPEC is optional. With a plain stated goal, the union of the tasks' `Done when` conditions — satisfied ones living on in the ledger — becomes the acceptance contract, which leaves that contract extendable by replanning, the one thing a SPEC prevents. The skill says so out loud rather than hiding it.
 
 ## Related
 

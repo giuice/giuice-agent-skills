@@ -101,7 +101,8 @@ not the whole contract>
 
 ## Established facts
 <the Discovered entries from LEDGER.md that this task depends on — identities,
-paths, versions, decisions already made>
+paths, versions, decisions already made — plus any fact from the task's Reasoning
+the performer needs; for T1, the grounding observation>
 
 ## Return contract
 Do the work, then verify your own postcondition and return ONLY this block:
@@ -197,8 +198,8 @@ Gate: replan required
 
 Ledger rules:
 
-- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write `replan required` the moment the gate decides a replan is needed — before invoking the replanner — then overwrite that same line with `replan done (plan version N)` once the new plan is written. The `Gate:` line is the one field updated in place; the append-only rule below does not apply to it. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
-- **On a run with no `Covers`** — no SPEC, so the contract is the union of the plan's `Done when` — copy the task's `Done when` into the entry instead. Completed tasks leave the plan, so this is the only place the satisfied part of the contract survives.
+- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write `replan required` the moment the gate decides a replan is needed — before invoking the replanner — then overwrite that same line with `replan done (plan version N)` once the new plan is written. If the replanner instead concludes that no valid plan exists — an unroutable blocker, or a repair that would change the contract — overwrite it with `replan exhausted` and exit through the reporter. The `Gate:` line is the one field updated in place; the append-only rule below does not apply to it. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
+- **On a run with no `Covers`** — no SPEC, so the contract is the union of the plan's `Done when` — copy the task's `Done when` into the entry instead, along with its `Restates:` line when present. Completed tasks leave the plan, so this is the only place the satisfied part of the contract survives.
 
 - **Write it after every task, never reconstruct it at the end.** A ledger rebuilt from memory at the end of a long run is exactly the semantic loss this workflow exists to prevent.
 - **Copy `Covers` verbatim from the plan.** It is the only path from task evidence back to acceptance criteria once the task leaves the plan. Omit when the plan has no `Covers`.
