@@ -88,7 +88,7 @@ When a stage escalates to the user — an unreachable acceptance criterion, a de
 When the user asks where things stand, read the folder and state it plainly before routing:
 
 ```
-Goal:        <from SPEC.md or PLAN.md>
+Goal:        <from PLAN.md, SPEC.md, or state.md>
 Plan:        version <N>, <M> tasks
 Progress:    <k> done, <k> unresolved
 Last entry:  <task id, status, and its Gate line>

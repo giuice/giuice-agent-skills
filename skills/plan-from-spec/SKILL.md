@@ -65,7 +65,7 @@ If the observation shows the goal is already true, write a plan with **zero task
 ```markdown
 # PLAN: <slug>
 
-Spec: ./SPEC.md
+Spec: ./SPEC.md   (or: none — the contract is this plan)
 Goal: <one sentence>
 Plan version: 1
 Status: no-op
@@ -184,7 +184,7 @@ Field rules:
 - **Covers** maps to SPEC requirement and acceptance-criterion IDs. Omit entirely when there is no SPEC. When a SPEC exists, every acceptance criterion and every Must-priority requirement must be covered — see the quality gate.
 - **Restates** (no-SPEC replans only) carries the prior `Done when` text verbatim when a task restates a pending condition more precisely. Omit otherwise.
 - **Depends on** lists task IDs that must complete first. Use `—` when none. Order tasks so dependencies precede dependents.
-- **Plan version** is a label for ledger entries, not an archive. Prior plan text lives in version control, not in this folder.
+- **Plan version** is a label for ledger entries, not an archive. Prior plan text is not kept — the plan file is the current strategy; version control preserves history when the folder happens to live in a repository.
 
 ---
 
@@ -242,7 +242,7 @@ If reaching the goal now requires relaxing, dropping, or reinterpreting an accep
 
 Amending the contract is the user's decision, not the planner's. A plan that silently redefines success is the failure mode this whole workflow exists to prevent.
 
-**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely — the restating task then carries `Restates: <the prior Done when text, verbatim>` so the reporter can join the old entry to the new. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
+**On a run with no SPEC**, the contract is the union of the `Done when` conditions accepted so far — those already satisfied in the ledger, plus those in the current plan. Replanning may **add** conditions and may **restate** a pending one more precisely — the restating task then carries `Restates: <the prior Done when text, verbatim>` so the reporter can join the old entry to the new. Adding strengthens the contract and needs no escalation. It may not weaken or drop one, and it may never touch a condition the ledger already records as satisfied. Dropping a pending condition is a contract change and takes the same escalation as above. The invariant is not suspended just because the contract lives in the plan file.
 
 ---
 

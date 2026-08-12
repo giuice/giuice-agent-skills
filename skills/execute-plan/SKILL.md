@@ -208,7 +208,7 @@ Ledger rules:
 - **Record deviations honestly.** A silent deviation becomes a hidden contract change.
 - **Destructive or irreversible actions and changes to user data are always state deltas.** Never leave one implicit.
 - A recovered transient error with no residual consequence may be omitted. An error that changed the final state must be recorded.
-- Append only. Never rewrite a past entry — its `Gate:` line excepted, per the rule above. If a later task changes an earlier outcome, write a new entry saying so.
+- Append only. Never rewrite a past entry — its `Gate:` line excepted, per the rule above. If a later task changes an earlier outcome, write a new entry saying so, naming the `Covers` ID or `Done when` it undoes.
 
 ### 6. Status transitions
 
@@ -275,7 +275,7 @@ Report the state through `completion-report` rather than improvising a new objec
 
 ## Resuming
 
-`LEDGER.md` is the resume point. On restart, read the contract, `PLAN.md`, and `LEDGER.md`. **First look at the last entry's `Gate:` line**: if it is missing, the run died before its checkpoint — run the replan gate for that entry now; if it says `replan required`, invoke the replanner now. Only then continue from the first task with no ledger entry — running the step 2 pre-check before dispatching it, since a prior run may have acted without recording.
+`LEDGER.md` is the resume point. On restart, read the contract, `PLAN.md`, and `LEDGER.md`. **First look at the last entry's `Gate:` line**: if it is missing, the run died before its checkpoint — run the replan gate for that entry now; if it says `replan required`, compare the entry's `Plan version` to `PLAN.md`'s — a higher plan version means the replan already completed and only the Gate was left open, so just overwrite it with `replan done (plan version N)`; otherwise invoke the replanner now. The same comparison reconciles a replan the user ran standalone. Only then continue from the first task with no ledger entry — running the step 2 pre-check before dispatching it, since a prior run may have acted without recording.
 
 Do not re-run completed tasks. Re-verify a completed task only when a later discovery may have invalidated its postcondition.
 

@@ -47,7 +47,7 @@ Where did we stop on the auto-triage work?
 | 4. Replan | `plan-from-spec` again | After every task: is the rest of the plan still true? Usually yes, and nothing changes |
 | 5. Report | `completion-report` | What became true, what was verified, what remains — and nothing else |
 
-Each piece of work gets **its own folder**, named after a slug derived from your goal. Features never share a folder and never collide:
+Each piece of work gets **its own folder**, named after a slug derived from your goal. Features never share a folder, and the router checks a folder's stored goal before resuming it, so different work never silently collides:
 
 ```
 spec-interview/
@@ -61,7 +61,7 @@ spec-interview/
     PLAN.md
 ```
 
-`spec-interview/` is just the parent directory the workflow uses. `auto-triage` is an example slug, not a fixed name — start a new feature and you get a new folder beside it.
+`spec-interview/` is just the parent directory the workflow uses. `auto-triage` is an example slug, not a fixed name — start a new feature and you get a new folder beside it. The tree shows the four execution-stage artifacts; interview files (`state.md`, `round-*.html`) live in the same folder.
 
 Because the state lives in files rather than in the conversation, you can close the session, come back tomorrow, and continue.
 

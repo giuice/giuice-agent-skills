@@ -136,7 +136,7 @@ Cover these domains before drafting:
 
 ### 4. Track knowns and unknowns
 
-After each round, persist the answers to `spec-interview/<slug>/state.md` so progress survives a dropped chat. Its first line is the scope restatement from step 1, so a later session can tell from the file alone what work this folder holds. Then summarize progress in a compact state table:
+After each round, persist the answers to `spec-interview/<slug>/state.md` so progress survives a dropped chat. Rewrite the whole file each round: the scope restatement from step 1 on the first line — so a later session can tell from the file alone what work this folder holds — then the answers so far grouped by domain, then the current coverage table. Then summarize progress in a compact state table:
 
 ```markdown
 ## Current understanding
