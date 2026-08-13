@@ -81,6 +81,8 @@ Each stage has a strict boundary. The SPEC defines success. The plan is mutable 
 
 The plan/execute/replan separation follows Erdogan et al., [PLAN-AND-ACT](https://arxiv.org/abs/2503.09572), where dynamic replanning was the single largest ablation gain — evidence that plan quality, not action execution, is the bottleneck on long tasks. The specification gate, the incremental ledger, and the reporting stage are additions.
 
+The execution shape is hub-and-spoke, not a serial pipeline — and that is deliberate. Serial multi-agent pipelines degrade at their handoffs: each agent compresses what it found into a summary for the next, and evidence, confidence, and detail fall out of the chain. Here every performer returns to the same orchestrator, which keeps the whole line of reasoning, and the ledger accumulates state, evidence, and provenance incrementally as each task ends instead of being reconstructed from memory afterwards. This reduces handoff degradation without pretending to eliminate compression: the ledger deliberately keeps state deltas, evidence, and material facts, and deliberately drops deliberation, discarded alternatives, and raw output — a controlled, auditable compression, not a lossless channel.
+
 ---
 
 ## Skills

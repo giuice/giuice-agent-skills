@@ -100,9 +100,11 @@ The performer starts cold, so the brief must stand alone. Send exactly this:
 not the whole contract>
 
 ## Established facts
-<the Discovered entries from LEDGER.md that this task depends on — identities,
-paths, versions, decisions already made — plus any fact from the task's Reasoning
-the performer needs; for T1, the grounding observation>
+<the [verified] Discovered entries from LEDGER.md that this task depends on —
+identities, paths, versions, decisions already made — plus any fact from the task's
+Reasoning the performer needs; for T1, the grounding observation. A fact still
+[reported, unconfirmed] is not established: confirm it first, or pass it explicitly
+labeled as an unconfirmed report>
 
 ## Return contract
 Do the work, then verify your own postcondition and return ONLY this block:
@@ -125,6 +127,7 @@ deviation: <how the executed work differs from the task as written, and why; omi
 Rules:
 - Report state, not activity. "Requests over 30s now fail" — not "I edited the client".
 - Do not claim a check you did not run.
+- A `discovered` item names what you observed and where, so it can be confirmed.
 - Use `no_op` if the postcondition was already satisfied before you started.
 - If the task is impossible as written, return `blocked` or `failed` with the reason.
   Do not improvise a different task.
@@ -144,6 +147,8 @@ The performer is not the judge of its own success. Before writing the ledger, ch
 - Run the `Verify by` check, or confirm the reported evidence is real and current.
 - Confirm the `Done when` condition actually holds now.
 - If `done` was claimed but the postcondition does not hold, record `failed` with the discrepancy. Do not soften it.
+
+Extend the same skepticism to `discovered:` items — they become later tasks' input and the replanner's premises. Confirm each one against observable state when a cheap check exists and record it `[verified]`; when you cannot, record it `[reported, unconfirmed]`. An unconfirmed discovery is a hypothesis, not a fact.
 
 Label the verification, because the reporter depends on the distinction:
 
@@ -186,7 +191,7 @@ Evidence:
 - production Redis behavior → not checked, no access to that environment
 Verification: unverified
 Discovered:
-- The product endpoint is also called by the reporting job, which expects fresh data.
+- [verified] The product endpoint is also called by the reporting job, which expects fresh data.
 Unresolved:
 - Cache invalidation for the reporting path.
 Risk:
@@ -198,11 +203,14 @@ Gate: replan required
 
 Ledger rules:
 
-- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write `replan required` the moment the gate decides a replan is needed — before invoking the replanner — then overwrite that same line with `replan done (plan version N)` once the new plan is written. If the replanner instead concludes that no valid plan exists — an unroutable blocker, or a repair that would change the contract — overwrite it with `replan exhausted` and exit through the reporter. The `Gate:` line is the one field updated in place; the append-only rule below does not apply to it. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
+- **Close every entry with `Gate:`** — `plan holds`, `replan required`, or `replan done (plan version N)`. Write `replan required` the moment the gate decides a replan is needed — before invoking the replanner — then overwrite that same line with `replan done (plan version N)` once the new plan is written. If the replanner instead concludes that no valid plan exists — an unroutable blocker, or a repair that would change the contract — or the gate's lineage limit fires, overwrite it with `replan exhausted` and exit through the reporter. When a run is later reopened, that same line becomes `replan reopened (plan version N)` — never `replan done`, which would erase the record that the run once exhausted. The `Gate:` line is the one field updated in place; the append-only rule below does not apply to it. This is the only durable record that the loop reached its checkpoint; without it, a run interrupted between a failed task and its replan looks identical to one that simply stopped, and nothing can tell which.
 - **On a run with no `Covers`** — no SPEC, so the contract is the union of the plan's `Done when` — copy the task's `Done when` into the entry instead, along with its `Restates:` line when present. Completed tasks leave the plan, so this is the only place the satisfied part of the contract survives.
 
 - **Write it after every task, never reconstruct it at the end.** A ledger rebuilt from memory at the end of a long run is exactly the semantic loss this workflow exists to prevent.
 - **Copy `Covers` verbatim from the plan.** It is the only path from task evidence back to acceptance criteria once the task leaves the plan. Omit when the plan has no `Covers`.
+- **Every `Discovered` item carries its provenance label** — `[verified]` when you confirmed it against observable state, `[reported, unconfirmed]` when it is only the performer's claim. Briefs, replans, and the gate treat the two differently, so an unlabeled discovery is a format error.
+- **`blocked` and `failed` entries carry a `Blocker:` line** — a short, stable, kebab-case identity for the obstacle itself (`Blocker: test-database-access`), not a restatement of the task. When the same obstacle recurs, reuse the identity verbatim: the lineage limit in the replan gate compares these labels literally.
+- **Copy `Continues:` and `Reopens:` verbatim from the plan** when the task carries them. Attempted tasks leave the plan on replan, so the ledger is the only place the continuation chain and the reopening join survive — the first for the lineage limit to count, the second for the audit trail across episodes.
 - **State over activity.** "Authentication now rejects expired tokens" — not "edited AuthService". Filenames are optional traceability, appended after the consequence.
 - **Evidence, not reasoning.** Record what was checked and what it returned. Do not record deliberation.
 - **Record deviations honestly.** A silent deviation becomes a hidden contract change.
@@ -234,7 +242,7 @@ Invoke `plan-from-spec` in replan mode when any of these holds:
 - the task returned partial, blocked, or failed
 - a postcondition failed and a retry will not fix it
 - an expected file, resource, person, capability, or state does not exist
-- something discovered invalidates a later task
+- a discovered fact, confirmed [verified], invalidates a later task
 - a task turned out to be impossible as written
 - a materially shorter valid path became available
 - a new constraint surfaced during execution
@@ -243,6 +251,17 @@ Invoke `plan-from-spec` in replan mode when any of these holds:
 ```
 
 Otherwise state that the plan still holds and continue.
+
+**Unconfirmed discoveries never redraw the strategy.** If a `[reported, unconfirmed]` fact would invalidate later tasks, confirm it first; if confirming it takes real work, the only replan it may drive is one that adds a validation task. The strategy rewrite waits for that task's verified result.
+
+**Lineage limit.** A task, the task whose `Continues:` names it, and every further continuation form one lineage: successive attempts at the same work under new IDs. Before invoking the replanner for a `partial`, `blocked`, or `failed` task, count its lineage in the ledger:
+
+- The task's `Blocker:` is identical to the `Blocker:` of the task it continues → the same obstacle has stopped two consecutive attempts. Overwrite the `Gate:` with `replan exhausted` and exit through the reporter. Replanning already failed to route around this blocker once; a third phrasing of the same task is not a new strategy.
+- The lineage already counts three attempts → `replan exhausted`, regardless of how novel the newest blocker looks.
+
+Both checks are deliberately mechanical — a literal label comparison and a count — because a model that is looping is the worst judge of whether it is looping. The reporter then names the blocker and what would unblock it; if the user later resolves it, the run reopens through a replan (see Resuming).
+
+A confirmed external change — the user resolving the blocker after a `replan exhausted` exit — opens a new episode. The reopening replan starts a **new lineage**: its continuation task omits `Continues:` and carries `Reopens:` naming the prior attempt instead, so the count and the blocker comparison start over while the historical join survives. The `Continues:` chain is the counter; breaking it is what renews the limit, and `Reopens:` preserves the audit trail without feeding the count. Without this, a lineage that consumed its attempts could never run again even after the user removed the obstacle.
 
 **Mid-task trigger.** Do not wait for the task to end when the divergence is already fatal. If a performer reports `blocked` or `failed` with a reason that invalidates the plan, replan immediately rather than dispatching the next task into a plan you know is wrong.
 
@@ -275,7 +294,7 @@ Report the state through `completion-report` rather than improvising a new objec
 
 ## Resuming
 
-`LEDGER.md` is the resume point. On restart, read the contract, `PLAN.md`, and `LEDGER.md`. **First look at the last entry's `Gate:` line**: if it is missing, the run died before its checkpoint — run the replan gate for that entry now; if it says `replan required`, compare the entry's `Plan version` to `PLAN.md`'s — a higher plan version means the replan already completed and only the Gate was left open, so just overwrite it with `replan done (plan version N)`; otherwise invoke the replanner now. The same comparison reconciles a replan the user ran standalone. Only then continue from the first task with no ledger entry — running the step 2 pre-check before dispatching it, since a prior run may have acted without recording.
+`LEDGER.md` is the resume point. On restart, read the contract, `PLAN.md`, and `LEDGER.md`. **First look at the last entry's `Gate:` line**: if it is missing, the run died before its checkpoint — run the replan gate for that entry now; if it says `replan required`, compare the entry's `Plan version` to `PLAN.md`'s — a higher plan version means the replan already completed and only the Gate was left open, so just overwrite it with `replan done (plan version N)`; otherwise invoke the replanner now. If it says `replan exhausted`, compare versions the same way: a higher plan version in `PLAN.md` means the run was reopened after the user resolved the blocker — overwrite the line with `replan reopened (plan version N)` and continue; equal versions mean the run is terminal and belongs to the reporter — unless the user is reopening it by reporting the blocker resolved. Confirm that resolution with the same skepticism as any discovered fact: against observable state when a check exists, or by the user's explicit confirmation — `attested` — when none does, recording which. A resolution neither observed nor explicitly confirmed reopens nothing. Confirmed, invoke `plan-from-spec` in replan mode with the resolution as the trigger, then overwrite the `Gate:` with `replan reopened (plan version N)` — a confirmed external change opens a new episode, and the lineage limit starts over (see the replan gate). The same comparison reconciles a replan the user ran standalone. Only then continue from the first task with no ledger entry — running the step 2 pre-check before dispatching it, since a prior run may have acted without recording.
 
 Do not re-run completed tasks. Re-verify a completed task only when a later discovery may have invalidated its postcondition.
 

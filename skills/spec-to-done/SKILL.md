@@ -44,7 +44,7 @@ Between the extremes, offer the middle: `plan-from-spec` and `execute-plan` on a
 
 | State of `spec-interview/<slug>/` | Hand off to |
 |---|---|
-| `REPORT.md` exists and no other artifact in the folder changed after it — compare file modification times | Nothing — state the outcome and ask what is next |
+| `REPORT.md` exists and no other artifact in the folder changed after it — compare file modification times | Nothing — state the outcome and ask what is next; if the user reports a blocker resolved, see "Reopening after `replan exhausted`" |
 | The last ledger entry says `Gate: replan required` | `execute-plan` — resuming, it invokes the replanner and closes the `Gate:` |
 | `PLAN.md` has `Status: no-op` and no tasks | `completion-report` |
 | Every task is `done` or `no_op` | `completion-report` |
@@ -66,10 +66,15 @@ Every task has an entry, but the run is not finished. Read the **last** entry's 
 |---|---|---|
 | `replan required` | The gate fired and the replan never finished | `execute-plan` — it replans and closes the `Gate:` |
 | missing | The run died before reaching its gate | `execute-plan` — it runs the gate it never reached |
-| `replan exhausted` | Replanning concluded no valid plan exists | `completion-report` |
-| `replan done (plan version N)`, N is the current plan version, still nothing dispatchable | Replanning already tried and could not route around the blocker | `completion-report` |
+| `replan exhausted`, `PLAN.md` version equals the entry's | Replanning concluded no valid plan exists | `completion-report` |
+| `replan exhausted`, `PLAN.md` version is higher | The run was reopened and the replan finished; only the `Gate:` was left open | `execute-plan` — it closes the `Gate:` and continues |
+| `replan done (plan version N)` or `replan reopened (plan version N)`, N is the current plan version, still nothing dispatchable | Replanning already tried and could not route around the blocker | `completion-report` |
 
 This is why `execute-plan` closes every entry with `Gate:`. Without it, an interrupted run and a terminally blocked one look identical from the folder.
+
+### Reopening after `replan exhausted`
+
+`replan exhausted` means no valid plan existed under the conditions of that moment — not that the goal is dead. When the user returns saying the blocker is resolved — access granted, decision made, dependency available — do not start a new run and do not re-gate the work. Hand off to `execute-plan` with the user's report: it owns the replan loop, so it confirms the resolution — observably when a check exists, by the user's explicit confirmation (`attested`) otherwise — and then invokes `plan-from-spec` in replan mode itself, with the resolution as the trigger. Routing straight to the planner from here would bypass the owner of the gate and the ledger. The exhausted entry's `Gate:` becomes `replan reopened (plan version N)`, so the stop and the restart both survive in the ledger even after later replans replace the plan text.
 
 ### Non-product work with unclear requirements
 

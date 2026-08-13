@@ -141,6 +141,7 @@ Rules:
 
 - `Done when` describes **state**, never activity. Not "the cache code is written" — that is activity. "A repeated request is served from cache" is state.
 - `Verify by` names something that produces evidence: a command, a test, a file check, an API response, a document, a direct observation.
+- Prefer the most mechanical check available: an exit code, a passing test, a countable value outranks reading output and judging it. When only interpretive verification exists, name the artifact to inspect and the criterion to judge it by — "read the summary and confirm it names all three payers", not "check the summary looks right".
 - When no automatic check exists, write `Verify by: user confirmation`. That is **valid evidence once the user actually confirms** — weaker than a machine check, and the report will label it `attested` rather than measured. A postcondition merely *awaiting* confirmation is not yet satisfied.
 - A task with no possible postcondition is not a task. It is either a detail of another task or it does not belong in the plan.
 
@@ -183,6 +184,8 @@ Field rules:
 - **Task IDs are stable and never reused.** `T3` refers to the same unit of work across every plan version. A replan that keeps a task keeps its ID; a new task takes the next unused number. This is what lets the ledger join to the plan across replans.
 - **Covers** maps to SPEC requirement and acceptance-criterion IDs. Omit entirely when there is no SPEC. When a SPEC exists, every acceptance criterion and every Must-priority requirement must be covered — see the quality gate.
 - **Restates** (no-SPEC replans only) carries the prior `Done when` text verbatim when a task restates a pending condition more precisely. Omit otherwise.
+- **Continues** (replan only) names the `partial`, `blocked`, or `failed` task whose remainder this task plans. One task ID. It is a field rather than prose in `Reasoning` because the executor counts continuation chains through it to enforce its lineage limit. Omitted on a reopening's first continuation, which carries `Reopens:` instead — see the replan rules.
+- **Reopens** (reopening replans only) names the exhausted attempt the run resumes from, on the first continuation task after a `replan exhausted` exit. The historical join without the count: the executor's lineage limit follows `Continues:` alone, so `Reopens:` renews the attempt budget while keeping the episodes traceable.
 - **Depends on** lists task IDs that must complete first. Use `—` when none. Order tasks so dependencies precede dependents.
 - **Plan version** is a label for ledger entries, not an archive. Prior plan text is not kept — the plan file is the current strategy; version control preserves history when the folder happens to live in a repository.
 
@@ -201,6 +204,8 @@ Trigger: a contract or goal exists and `PLAN.md` does not.
 ## Mode: replan
 
 Trigger: **the executor's replan gate fired.** Reaching the end of a task is a checkpoint for that gate, not by itself a reason to replan. A run in which no plan ever changes is a correct run.
+
+One more trigger: a run that ended `replan exhausted` is being reopened because the user reports its blocker resolved. That report reaches this skill through the executor — the router never calls replan mode directly — and only after the executor has confirmed the resolution — observed against current state, or explicitly attested by the user. The resolution is then the trigger named in `Replanned because:`.
 
 Inputs: the contract, the current `PLAN.md`, `LEDGER.md`, and the observed current state.
 
@@ -224,9 +229,9 @@ Start the reasoning of the first future task with an explicit reflection:
 ### Rules
 
 - **Plan only future work.** Completed tasks leave the plan; the ledger holds them. Do not renumber survivors.
-- **No attempted task survives.** Any task with a `partial`, `blocked`, or `failed` ledger entry is finished as an instruction: whatever remains of it becomes a **new** task with a **new** ID. Reusing the ID would make the executor re-run side effects that already happened — and because the executor never redispatches a task that has a ledger entry, a reused ID would simply never run again. Say in the new task's reasoning which prior task it continues.
+- **No attempted task survives.** Any task with a `partial`, `blocked`, or `failed` ledger entry is finished as an instruction: whatever remains of it becomes a **new** task with a **new** ID. Reusing the ID would make the executor re-run side effects that already happened — and because the executor never redispatches a task that has a ledger entry, a reused ID would simply never run again. The new task carries `Continues:` naming the prior task; its reasoning says what remains of it. **Exception — reopening.** When the trigger is a resolved blocker after `replan exhausted`, the continuation task omits `Continues:` and carries `Reopens:` naming the prior attempt instead: the `Continues:` chain is the executor's attempt counter, so a confirmed external change starts a new episode by breaking it, while `Reopens:` keeps the episodes joined in the record. Reasoning alone would not survive — attempted tasks leave the plan and the ledger does not copy reasoning.
 - **Repoint dependencies.** Every surviving task whose `Depends on` names a finished-as-instruction task now points at its replacement — or drops the dependency if the part already done was all it needed. A `Depends on` left pointing at a `partial`, `blocked`, or `failed` entry can never be satisfied: the executor requires dependencies to be `done` or `no_op`, and that task will never be either.
-- **Carry discovered facts forward into the plan text.** The plan is the working memory of the run. If execution learned that the top contributor is Alice, later tasks say "Alice", not "the top contributor". This is why the loop needs no separate memory mechanism.
+- **Carry discovered facts forward into the plan text.** The plan is the working memory of the run. If execution learned that the top contributor is Alice, later tasks say "Alice", not "the top contributor". This is why the loop needs no separate memory mechanism. Only facts the ledger records as `[verified]` may be written into task text as fact; a `[reported, unconfirmed]` discovery either gets its own validation task or stays out of the plan — an unchecked claim written here becomes every later task's premise.
 - Increment `Plan version` and fill `Replanned because` with the concrete trigger.
 - If nothing material changed, say so and leave the plan untouched.
 
@@ -254,12 +259,15 @@ Run before writing `PLAN.md`, in either mode:
 - Grounded in an actual observation of current state: Pass / Missing
 - Every acceptance criterion covered by a completed ledger entry or a remaining task: Pass / Missing / N/A
 - Every Must-priority requirement covered by a completed ledger entry or a remaining task: Pass / Missing / N/A
+- Every task lists `Covers`, or a task that transitively depends on it does — no task sits outside every path to a requirement (SPEC runs only): Pass / Missing / N/A
+- Every ID in `Covers` exists in the SPEC: Pass / Missing / N/A
 - Every task has an observable Done when: Pass / Missing
 - Every task has a Verify by: Pass / Missing
 - No task describes HOW instead of WHAT: Pass / Missing
 - Dependencies ordered correctly, no cycles: Pass / Missing
 - No `Depends on` names a task with a `partial`, `blocked`, or `failed` ledger entry (replan only): Pass / Missing / N/A
 - Task IDs stable against the previous version (replan only): Pass / Missing / N/A
+- Every task planning the remainder of an attempted task carries `Continues:` naming it, except a reopening's first continuation, which carries `Reopens:` instead (replan only): Pass / Missing / N/A
 - Success criteria unchanged from the contract (replan only): Pass / Missing / N/A
 
 Verdict: Ready / Not ready
@@ -283,4 +291,4 @@ Coverage is evaluated against **the ledger plus the remaining plan**, never the 
 
 **Silent scope drift.** Quietly dropping a hard requirement during replan because it turned out to be difficult. Escalate instead.
 
-**Padding.** A three-task goal gets a three-task plan. Do not manufacture tasks to make the plan look thorough.
+**Padding.** A three-task goal gets a three-task plan. Do not manufacture tasks to make the plan look thorough. The reverse-coverage line in the quality gate exists to catch exactly this.
