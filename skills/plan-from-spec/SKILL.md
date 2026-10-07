@@ -7,6 +7,12 @@ metadata:
 
 # Plan From Spec
 
+## Migration notice
+
+The current self-contained workflow is [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)); one installation includes all stages. This file retains the legacy planning procedure below. If the user chooses the current composite, ask the current composite for planning only: it satisfies missing prerequisites, writes the plan, and stops before execution.
+
+Migration is a user choice, not an automatic handoff: do not install or switch workflows merely because this skill was invoked. Continue to honor the requested stage and this procedure when using the legacy skill. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md`, not `LEDGER.md`; preserve existing artifacts rather than assuming drop-in compatibility.
+
 Produce a high-level plan that an executor can carry out, and keep that plan true as reality diverges from it.
 
 This skill is domain-neutral. It plans code work, research, writing, operations, and physical-world tasks. Nothing here assumes a web page, a repository, or a programming language.

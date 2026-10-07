@@ -1,5 +1,19 @@
 # plan-from-spec
 
+## Current workflow
+
+For new work, install the self-contained `spec-to-done` from [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)):
+
+```bash
+npx skills add giuice/spec-to-done --skill spec-to-done
+```
+
+One installation includes specification, planning, execution/replanning, and reporting. You do not need separate `plan-from-spec`, `execute-plan`, or `completion-report` installations. Ask the current composite for planning only: it satisfies missing prerequisites, writes the plan, and stops before execution.
+
+This directory retains the legacy planning skill for existing users. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md` instead of this workflow's `LEDGER.md`; do not assume an existing run is directly interchangeable. Preserve its artifacts and review the current workflow before switching.
+
+## Legacy skill
+
 Turn a SPEC or a stated goal into a plan of outcome-shaped tasks, and regenerate that plan when execution proves it wrong.
 
 ## When to use
@@ -31,7 +45,7 @@ Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-sc
 
 The plan/execute/replan separation follows Erdogan et al., [PLAN-AND-ACT: Improving Planning of Agents for Long-Horizon Tasks](https://arxiv.org/abs/2503.09572), where dynamic replanning was the single largest ablation gain — evidence that plan quality, not action execution, is the bottleneck on long-horizon tasks.
 
-## Install
+## Legacy installation
 
 ```bash
 npx skills add giuice/giuice-agent-skills --skill plan-from-spec

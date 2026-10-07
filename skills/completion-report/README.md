@@ -1,5 +1,19 @@
 # completion-report
 
+## Current workflow
+
+For new work, install the self-contained `spec-to-done` from [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)):
+
+```bash
+npx skills add giuice/spec-to-done --skill spec-to-done
+```
+
+One installation includes specification, planning, execution/replanning, and reporting. You do not need separate `plan-from-spec`, `execute-plan`, or `completion-report` installations. Ask the current composite for a report of the existing outcome. Preserve the reporting-only request; do not treat migration guidance as permission to implement or repair anything.
+
+This directory retains the legacy reporting skill for existing users. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md` instead of this workflow's `LEDGER.md`; do not assume an existing run is directly interchangeable. Preserve its artifacts and review the current workflow before switching.
+
+## Legacy skill
+
 Produce the smallest user-facing report that preserves every material fact about the outcome.
 
 ## When to use
@@ -40,7 +54,7 @@ Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-sc
 
 Full design rationale, including the semantic-ledger model and validation criteria: [docs/completion-reporter-design.md](../../docs/completion-reporter-design.md).
 
-## Install
+## Legacy installation
 
 ```bash
 npx skills add giuice/giuice-agent-skills --skill completion-report

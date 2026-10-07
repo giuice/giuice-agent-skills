@@ -7,6 +7,12 @@ metadata:
 
 # Execute Plan
 
+## Migration notice
+
+The current self-contained workflow is [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)); one installation includes all stages. This file retains the legacy execution procedure below. If the user chooses the current composite, ask the current composite to execute the plan: it satisfies missing prerequisites and retains its verification, replanning, and terminal-report rules.
+
+Migration is a user choice, not an automatic handoff: do not install or switch workflows merely because this skill was invoked. Continue to honor the requested stage and this procedure when using the legacy skill. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md`, not `LEDGER.md`; preserve existing artifacts rather than assuming drop-in compatibility.
+
 Carry out a plan one task at a time, keeping an honest record of what actually became true.
 
 You are the **orchestrator**. You dispatch each task, verify the result against observable state, write the ledger, and decide whether the plan still holds. Verification and the ledger are always yours, whoever performs the work.

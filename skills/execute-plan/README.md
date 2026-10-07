@@ -1,5 +1,19 @@
 # execute-plan
 
+## Current workflow
+
+For new work, install the self-contained `spec-to-done` from [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)):
+
+```bash
+npx skills add giuice/spec-to-done --skill spec-to-done
+```
+
+One installation includes specification, planning, execution/replanning, and reporting. You do not need separate `plan-from-spec`, `execute-plan`, or `completion-report` installations. Ask the current composite to execute the plan: it satisfies missing prerequisites and retains its verification, replanning, and terminal-report rules.
+
+This directory retains the legacy execution skill for existing users. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md` instead of this workflow's `LEDGER.md`; do not assume an existing run is directly interchangeable. Preserve its artifacts and review the current workflow before switching.
+
+## Legacy skill
+
 Execute a plan task by task as an orchestrator: delegate, verify, record, decide whether to replan.
 
 ## When to use
@@ -36,7 +50,7 @@ The ledger records **state, not activity**: "requests over 30s now fail", not "e
 
 Part of `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`, with [spec-from-scratch](../spec-from-scratch), [plan-from-spec](../plan-from-spec), and [completion-report](../completion-report). [spec-to-done](../spec-to-done) is the entry point if you would rather not name the stage yourself.
 
-## Install
+## Legacy installation
 
 ```bash
 npx skills add giuice/giuice-agent-skills --skill execute-plan

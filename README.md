@@ -2,39 +2,39 @@
 
 Reusable Open Agent Skills for AI coding agents and agentic workflows.
 
-The main thing here is a **long-horizon workflow**: five skills that take a piece of work from an unclear idea to an evidence-grounded, reported outcome without losing the thread halfway through. Sometimes that outcome is "done and verified"; sometimes it is "blocked here, and this is why" — the workflow is built so both arrive honestly.
+## Recommended: the current spec-to-done
 
-```
-SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT
-```
-
----
-
-## Quick start
-
-Install the workflow:
+The current end-to-end workflow lives in [giuice/spec-to-done](https://github.com/giuice/spec-to-done) and is available on [skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done). Install its single self-contained skill:
 
 ```bash
-npx skills add giuice/giuice-agent-skills --skill spec-to-done spec-from-scratch plan-from-spec execute-plan completion-report
+npx skills add giuice/spec-to-done --skill spec-to-done
 ```
 
-Skill names are space-separated, not comma-separated.
+That one installation includes specification, planning, execution/replanning, and reporting. **Do not install `plan-from-spec`, `execute-plan`, and `completion-report` separately for the current composite workflow.** Describe the outcome in your own words, or explicitly request a single stage; the composite satisfies missing prerequisites and stops at the requested stage.
 
-Then just say what you want, in your own words:
+### Standalone spec-from-scratch
 
+[`spec-from-scratch`](skills/spec-from-scratch) remains an independent, fully usable skill in this repository. It interviews you and produces a SPEC without requiring the composite or any other skill. The current composite includes its own specification stage; installing it does not require a separate `spec-from-scratch` installation. If you only want the independent specification skill:
+
+```bash
+npx skills add giuice/giuice-agent-skills --skill spec-from-scratch
 ```
-Take this from idea to done: our support inbox needs auto-triage by topic.
-```
 
-`spec-to-done` picks it up, decides whether the work is big enough to deserve the loop, and routes you through the stages. **You do not need to know the other skill names.** They also work standalone if you want only one of them.
+### Existing users of the legacy workflow
 
-To pick up work later:
+The four legacy skills here are `spec-to-done` (the router), `plan-from-spec`, `execute-plan`, and `completion-report`. Their procedures remain available for existing users; the sections below describe that legacy architecture. `explorar-planejar-executar` remains a separate pt-BR workflow.
 
-```
-Where did we stop on the auto-triage work?
-```
+Switching is not a drop-in artifact migration. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md` instead of the legacy `LEDGER.md`. Preserve existing work and review the current workflow before resuming it there; installing the new skill alone does not convert a run.
 
 ---
+
+## Legacy workflow
+
+Five cooperating skills take work from an unclear idea to an evidence-grounded outcome: the four legacy workflow skills plus the independent `spec-from-scratch` when a specification interview is needed. The legacy stages also accept a stated goal without a SPEC; the current composite has different prerequisites.
+
+```text
+SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT
+```
 
 ## What actually happens
 
@@ -121,7 +121,9 @@ A separate pt-BR workflow, not part of the loop above. Turns vague goals into co
 
 ---
 
-## Install
+## Legacy repository installation
+
+These commands target this repository, not the current composite recommended above. Prefer an explicit skill name when you only need the standalone specification skill or the separate pt-BR workflow.
 
 List what is available:
 
@@ -129,13 +131,13 @@ List what is available:
 npx skills add giuice/giuice-agent-skills --list
 ```
 
-Install everything:
+Install everything in this legacy repository:
 
 ```bash
 npx skills add giuice/giuice-agent-skills
 ```
 
-Install one skill:
+Install the legacy router only:
 
 ```bash
 npx skills add giuice/giuice-agent-skills --skill spec-to-done

@@ -7,6 +7,12 @@ metadata:
 
 # Spec to Done
 
+## Migration notice
+
+The current self-contained workflow is [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)); one installation includes all stages. This file retains the legacy router procedure below. If the user chooses the current composite, use it for the end-to-end request. For an explicitly requested single stage, preserve that stopping boundary.
+
+Migration is a user choice, not an automatic handoff: do not install or switch workflows merely because this skill was invoked. Continue to honor the requested stage and this procedure when using the legacy skill. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md`, not `LEDGER.md`; preserve existing artifacts rather than assuming drop-in compatibility.
+
 Route work through `SPECIFY → PLAN → EXECUTE ↔ REPLAN → REPORT`.
 
 This skill decides and hands off. It holds **no** planning, execution, or reporting rules — those live in the skills it routes to, and duplicating them here would create a second source of truth that drifts. If you catch yourself explaining how to write a task or a report, stop and hand off instead.

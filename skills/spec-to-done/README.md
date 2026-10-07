@@ -1,5 +1,19 @@
 # spec-to-done
 
+## Current workflow
+
+For new work, install the self-contained `spec-to-done` from [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)):
+
+```bash
+npx skills add giuice/spec-to-done --skill spec-to-done
+```
+
+One installation includes specification, planning, execution/replanning, and reporting. You do not need separate `plan-from-spec`, `execute-plan`, or `completion-report` installations. For an end-to-end request, use the current composite workflow. For an explicitly requested single stage, preserve that stopping boundary.
+
+This directory retains the legacy router skill for existing users. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md` instead of this workflow's `LEDGER.md`; do not assume an existing run is directly interchangeable. Preserve its artifacts and review the current workflow before switching.
+
+## Legacy skill
+
 The entry point to the long-horizon workflow. Decides whether the work warrants it, finds which stage the work is already in, and hands off.
 
 ## When to use
@@ -29,7 +43,7 @@ One exception it does own: a **non-product** goal that is still vague. `spec-fro
 
 The router for [spec-from-scratch](../spec-from-scratch), [plan-from-spec](../plan-from-spec), [execute-plan](../execute-plan), and [completion-report](../completion-report).
 
-## Install
+## Legacy installation
 
 ```bash
 npx skills add giuice/giuice-agent-skills --skill spec-to-done

@@ -7,6 +7,12 @@ metadata:
 
 # Completion Report
 
+## Migration notice
+
+The current self-contained workflow is [giuice/spec-to-done](https://github.com/giuice/spec-to-done) ([skills.sh](https://www.skills.sh/giuice/spec-to-done/spec-to-done)); one installation includes all stages. This file retains the legacy reporting procedure below. If the user chooses the current composite, ask the current composite for a report of the existing outcome. Preserve the reporting-only request; do not treat migration guidance as permission to implement or repair anything.
+
+Migration is a user choice, not an automatic handoff: do not install or switch workflows merely because this skill was invoked. Continue to honor the requested stage and this procedure when using the legacy skill. Before planning or execution, the current composite checks SPEC readiness and user approval; existing specifications must satisfy its prerequisites. It uses `TRACK.md` / `SNAPSHOT.md`, not `LEDGER.md`; preserve existing artifacts rather than assuming drop-in compatibility.
+
 Produce the report that preserves the most material state in the least text.
 
 Two rules generate everything else:
